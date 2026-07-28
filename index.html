@@ -167,7 +167,7 @@
     <h1>rEvo <span class="o2">✓</span> Checklist</h1>
     <div class="mode-toggle" id="modeToggle">
       <button data-mode="mccr">mCCR</button>
-      <button data-mode="hccr">hCCR / rMS</button>
+      <button data-mode="hccr">hCCR · Petrel 3 + NERD 2</button>
     </div>
   </div>
   <div class="scrubber">
@@ -200,7 +200,8 @@ const CHECKLISTS = [
   items:[
     {group:'Considerazioni preliminari'},
     {t:'Tempo scrubber: minuti già usati + immersione pianificata ≤ 160 min?', sub:'Altrimenti ricarica entrambi gli scrubber con sorb fresco. Aggiorna il contatore in alto.'},
-    {t:'Batterie rEvodream OK?', sub:'Nessuna indicazione di batteria scarica nell’immersione precedente? Sostituiscile a casa, MAI al punto d’immersione (rischio umidità nell’alloggiamento).'},
+    {t:'Batterie rEvodream OK?', sub:'Nessuna indicazione di batteria scarica nell’immersione precedente? Sostituiscile a casa, MAI al punto d’immersione (rischio umidità nell’alloggiamento).',
+     t2:'Batterie Petrel 3 e NERD 2 OK?', sub2:'Controlla le tensioni nei menu (interna > 3.30 V). Nessun avviso batteria nell’immersione precedente? Sostituiscile/ricaricale a casa, non al punto d’immersione.'},
     {group:'Bombole e gas'},
     {t:'Analizza il contenuto della bombola O₂', fields:[{k:'o2_pct',label:'%O₂'},{k:'o2_bar',label:'bar'}]},
     {t:'Analizza il contenuto della bombola diluente', fields:[{k:'dil_o2',label:'%O₂'},{k:'dil_he',label:'%He'},{k:'dil_bar',label:'bar'}]},
@@ -208,7 +209,9 @@ const CHECKLISTS = [
     {t:'Installa le bombole sull’unità', sub:'Verifica il corretto aggancio dei quick release.'},
     {t:'Collega gli erogatori alle rubinetterie', sub:'Connessione primo stadio–rubinetto pulita: niente sporco o grasso non O₂-compatibile.'},
     {group:'Celle ed elettronica'},
-    {t:'Controlla i millivolt delle celle in aria', fields:[{k:'mv1',label:'cella 1'},{k:'mv2',label:'cella 2'},{k:'mv3',label:'cella 3'}]},
+    {t:'Controlla i millivolt delle celle in aria', fields:[{k:'mv1',label:'cella 1'},{k:'mv2',label:'cella 2'},{k:'mv3',label:'cella 3'}],
+     sub2:'Celle 1–3: lette dal controller (Petrel 3).'},
+    {t:'Millivolt celle 4–5 (monitor indipendente)', sub:'hCCR: minimo 4 celle. Le celle 4 (ed eventualmente 5) sono lette dal monitor indipendente (NERD 2).', fields:[{k:'mv4',label:'cella 4'},{k:'mv5',label:'cella 5'}], hccr:true},
     {t:'Batteria esterna: fai sparare il solenoide 10 s', sub:'Tensione EXT > 6.5 V.', hccr:true},
     {t:'Vita delle celle O₂: la più giovane ha meno di 7 mesi?', sub:'Altrimenti aggiungi/sostituisci una cella e scrivi la data sulla cella. Sostituisci sempre la più vecchia o quella che reagisce più lentamente. Solo celle R22D-rEvo / CR22D-rEvo.'},
     {group:'Scrubber e polmoni'},
@@ -221,7 +224,8 @@ const CHECKLISTS = [
     {t:'Stereo check delle valvole di non ritorno (a fungo)', sub:'Boccaglio aperto: blocca il lato espirazione (connettore rosso) e soffia → non deve uscire gas; blocca il lato inspirazione (nero) e aspira → non deve entrare gas. Boccaglio chiuso: soffia nel lato nero → niente gas dal boccaglio; aspira dal lato rosso → niente gas nel boccaglio.'},
     {t:'Boccaglio e O-ring del loop: superfici pulite, ingrassa se serve'},
     {t:'Installa il loop sul rebreather', sub:'Connettore rosso nella porta con il pulsante rosso: il flusso va in senso antiorario, da destra verso sinistra. Le connessioni marcate (scanalatura = espirazione) e i diametri diversi impediscono inversioni.'},
-    {t:'Avvolgi il cavo degli HUD 3–4 giri in senso orario attorno al corrugato'},
+    {t:'Avvolgi il cavo degli HUD 3–4 giri in senso orario attorno al corrugato',
+     t2:'Avvolgi il cavo del NERD 2 3–4 giri in senso orario attorno al corrugato'},
   ]
 },
 {
@@ -230,12 +234,14 @@ const CHECKLISTS = [
   items:[
     {group:'Ossigeno'},
     {t:'Apri l’O₂ LENTAMENTE / aggiungi O₂ manualmente / pressione?', sub:'Le rubinetterie O₂ si aprono sempre lentamente: rischio incendio per compressione adiabatica. Nessuna perdita tra primo stadio e rubinetto.'},
-    {t:'Accendi lo Shearwater: set-point alto → il solenoide spara?', hccr:true},
-    {t:'Imposta il set-point Shearwater a 0.19', hccr:true},
+    {t:'Accendi il Petrel 3: set-point alto → il solenoide spara?', hccr:true},
+    {t:'Imposta il set-point del Petrel 3 a 0.19', hccr:true},
     {t:'Flush O₂ completo ×3', sub:'DSV in bocca, svuota i polmoni espirando dal naso, inietta O₂ fino a leggera sovrappressione, lascia sfiatare dagli angoli della bocca. Ripeti 3 volte, poi chiudi il DSV e riaprilo a fessura: il piccolo flusso in uscita conferma che l’orifice eroga e che il loop resta a 1 ata.'},
-    {t:'rEvodream accesi: calibra', sub:'Calibrazione OK = lampeggio veloce del LED verde. Valori corretti in aria dopo: 0.20–0.22.'},
-    {t:'Calibra lo Shearwater', hccr:true},
-    {t:'Batterie: rEvodream OK?', sub:'> 1.25 V (o > 3.30 V a seconda della batteria); hCCR: EXT > 6.5 V. MAI immergersi con indicazione di batteria scarica.'},
+    {t:'rEvodream accesi: calibra', sub:'Calibrazione OK = lampeggio veloce del LED verde. Valori corretti in aria dopo: 0.20–0.22.',
+     t2:'NERD 2 acceso: calibra', sub2:'Con il loop al 100% di O₂ a 1 ata. Valori corretti in aria dopo la calibrazione: 0.20–0.22.'},
+    {t:'Calibra il Petrel 3', hccr:true},
+    {t:'Batterie: rEvodream OK?', sub:'> 1.25 V (o > 3.30 V a seconda della batteria); hCCR: EXT > 6.5 V. MAI immergersi con indicazione di batteria scarica.',
+     t2:'Batterie: Petrel 3 e NERD 2 OK? EXT > 6.5 V?', sub2:'Interna > 3.30 V. MAI immergersi con indicazione di batteria scarica.'},
     {t:'Chiudi l’O₂: la pressione scende?', sub:'Il calo conferma che l’orifice sta erogando (CMF ~0.6 l/min).'},
     {t:'Depressurizza la linea O₂'},
     {group:'Diluente'},
@@ -250,9 +256,9 @@ const CHECKLISTS = [
     {t:'Apri il bailout: pressione? / respira dall’erogatore: la pressione tiene?', sub:'Miscela analizzata e corretta per l’immersione.'},
     {t:'Controlla tutte le connessioni'},
     {t:'Chiudi il bailout / verifica la valvola dell’erogatore inspirando'},
-    {t:'Gas programmati nel computer (CC/OC)'},
+    {t:'Gas programmati nel computer (CC/OC)', sub2:'Su Petrel 3 e NERD 2.'},
     {t:'Tempo scrubber sufficiente per la prossima immersione?'},
-    {t:'Test negativo OK? (hiss alla riapertura)', sub:'hCCR: spegni lo Shearwater.'},
+    {t:'Test negativo OK? (hiss alla riapertura)', sub:'hCCR: spegni lo Shearwater.', sub2:'Spegni il Petrel 3.'},
     {t:'Controlla imbrago, cinghiolo inguinale, gag strap del boccaglio — FINE'},
   ]
 },
@@ -274,14 +280,16 @@ const CHECKLISTS = [
     {t:'La muta stagna si gonfia?'},
     {group:'Ossigeno e loop'},
     {t:'Apri l’O₂ LENTAMENTE / pressione?'},
-    {t:'Shearwater acceso: set-point basso / solenoide?', hccr:true},
+    {t:'Petrel 3 acceso: set-point basso / il solenoide spara?', hccr:true},
     {t:'Aggiungi O₂ manualmente / pressione?'},
-    {t:'rEvodream accesi', sub:'Se indicano PPO₂ tra 0.97 e 1.01 dopo il flush O₂ puoi procedere, altrimenti ricalibra.'},
+    {t:'rEvodream accesi', sub:'Se indicano PPO₂ tra 0.97 e 1.01 dopo il flush O₂ puoi procedere, altrimenti ricalibra.',
+     t2:'NERD 2 acceso', sub2:'Se indica PPO₂ tra 0.97 e 1.01 dopo il flush O₂ puoi procedere, altrimenti ricalibra.'},
     {t:'PPO₂ > 0.7'},
-    {t:'Batterie rEvodream? (Shearwater?)'},
-    {t:'Pre-breathe 5 minuti', sub:'Seduto, con la maschera indossata. PPO₂ sempre > 0.5. I due display concordano (differenza max 0.03)? Gli HUD corrispondono ai display? Nessuna batteria scarica? Ti senti bene? hCCR/rMS: in alternativa RCT > 0:45.', timer:300},
+    {t:'Batterie rEvodream? (Shearwater?)', t2:'Batterie Petrel 3 e NERD 2?'},
+    {t:'Pre-breathe 5 minuti', sub:'Seduto, con la maschera indossata. PPO₂ sempre > 0.5. I due display concordano (differenza max 0.03)? Gli HUD corrispondono ai display? Nessuna batteria scarica? Ti senti bene? hCCR/rMS: in alternativa RCT > 0:45.',
+     sub2:'Seduto, con la maschera indossata. PPO₂ sempre > 0.5. Petrel 3 e NERD 2 concordano (differenza max 0.03)? Nessuna batteria scarica? Ti senti bene? rMS: in alternativa RCT > 0:45 sul Petrel.', timer:300},
     {group:'Ultimi controlli'},
-    {t:'Gas nel computer? Modalità CC?'},
+    {t:'Gas nel computer? Modalità CC?', sub2:'Petrel 3 e NERD 2 in CC, gas corretti su entrambi.'},
     {t:'Buddy check', sub:'Connessioni, bailout, pressioni, rEvodream funzionanti.'},
     {t:'Maschera, pinne, ricambi, cesoie, luci…'},
   ]
@@ -291,7 +299,8 @@ const CHECKLISTS = [
   desc:'Manuale §4.4. Non è una checklist da spuntare: regole da avere in testa durante l’immersione.',
   info:true,
   items:[
-    {t:'IMMERGITI SEMPRE IN VERDE', sub:'Entrando in acqua, durante l’immersione e uscendo: su ENTRAMBI gli HUD il LED verde deve essere acceso. Se non lo è, correggi immediatamente.'},
+    {t:'IMMERGITI SEMPRE IN VERDE', sub:'Entrando in acqua, durante l’immersione e uscendo: su ENTRAMBI gli HUD il LED verde deve essere acceso. Se non lo è, correggi immediatamente.',
+     sub2:'Entrando in acqua, durante l’immersione e uscendo: PPO₂ sempre nel range corretto sul NERD 2. Il Petrel mantiene il set-point, ma sei TU a doverla verificare costantemente: se qualcosa non torna, correggi immediatamente.'},
     {t:'Bubble check a 3–5 m', sub:'Unità ben fissata? Niente componenti a penzoloni? Nessuna bolla?'},
     {t:'CONOSCI SEMPRE LA TUA PPO₂', sub:'Controlla regolarmente i display: corrispondono agli HUD?'},
     {t:'Volume minimo del loop', sub:'Il volume corretto: a fine inspirazione completa l’ADV non si attiva per un pelo. Polmoni troppo pieni = respirazione scomoda e assetto instabile, specie in risalita.'},
@@ -359,7 +368,7 @@ const CHECKLISTS = [
 /* ================= STATO ================= */
 
 const LS_KEY = 'revoChecklist.v1';
-let state = { mode:'mccr', checks:{}, values:{}, scrub:'', dates:{} };
+let state = { mode:'hccr', checks:{}, values:{}, scrub:'', dates:{} };
 try{ Object.assign(state, JSON.parse(localStorage.getItem(LS_KEY)||'{}')); }catch(e){}
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
@@ -440,10 +449,13 @@ function renderList(cl){
     row.appendChild(box);
 
     const body=document.createElement('div'); body.className='body';
+    const hc = state.mode==='hccr';
+    const txt = (hc && it.t2) ? it.t2 : it.t;
+    const sub = (hc && it.sub2) ? it.sub2 : it.sub;
     const t=document.createElement('div'); t.className='t';
-    t.innerHTML = (it.hccr?'<span class="badge">hCCR/rMS</span>':'') + escapeHtml(it.t);
+    t.innerHTML = (it.hccr?'<span class="badge">hCCR</span>':'') + escapeHtml(txt);
     body.appendChild(t);
-    if(it.sub){ const s=document.createElement('div'); s.className='sub'; s.textContent=it.sub; body.appendChild(s); }
+    if(sub){ const s=document.createElement('div'); s.className='sub'; s.textContent=sub; body.appendChild(s); }
 
     if(it.fields){
       const fw=document.createElement('div'); fw.className='fields';
