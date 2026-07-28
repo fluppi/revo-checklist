@@ -260,6 +260,7 @@ const CHECKLISTS = [
     {t:'Tempo scrubber sufficiente per la prossima immersione?'},
     {t:'Test negativo OK? (hiss alla riapertura)', sub:'hCCR: spegni lo Shearwater.', sub2:'Spegni il Petrel 3.'},
     {t:'Controlla imbrago, cinghiolo inguinale, gag strap del boccaglio — FINE'},
+    {t:'Se NON ti immergi subito: chiudi le bombole e flusha il loop con aria', sub:'Con la bombola O₂ aperta l’orifice continua a erogare e la svuota in poche ore.'},
   ]
 },
 {
@@ -269,6 +270,7 @@ const CHECKLISTS = [
     {group:'Vestizione'},
     {t:'rEvo alto e ben fissato sulla schiena', sub:'Cinghie tirate, l’unità non deve oscillare. Cinghiolo inguinale se previsto.'},
     {group:'Bailout'},
+    {t:'Aggancia il bailout all’imbrago'},
     {t:'Apri il bailout / pressione?'},
     {t:'Respira dal bailout / la pressione tiene?'},
     {t:'Connessioni a posto?'},
@@ -302,7 +304,8 @@ const CHECKLISTS = [
     {t:'IMMERGITI SEMPRE IN VERDE', sub:'Entrando in acqua, durante l’immersione e uscendo: su ENTRAMBI gli HUD il LED verde deve essere acceso. Se non lo è, correggi immediatamente.',
      sub2:'Entrando in acqua, durante l’immersione e uscendo: PPO₂ sempre nel range corretto sul NERD 2. Il Petrel mantiene il set-point, ma sei TU a doverla verificare costantemente: se qualcosa non torna, correggi immediatamente.'},
     {t:'Bubble check a 3–5 m', sub:'Unità ben fissata? Niente componenti a penzoloni? Nessuna bolla?'},
-    {t:'CONOSCI SEMPRE LA TUA PPO₂', sub:'Controlla regolarmente i display: corrispondono agli HUD?'},
+    {t:'CONOSCI SEMPRE LA TUA PPO₂', sub:'Controlla regolarmente i display: corrispondono agli HUD?', sub2:'Controlla regolarmente la PPO₂ sul NERD 2 e confrontala con il Petrel 3.'},
+    {t:'Posizione in acqua: leggero angolo positivo', sub:'La resistenza respiratoria minima si ottiene pinneggiando con un leggero angolo positivo: l’inclinazione giusta è quella in cui inspirare ed espirare costano uguale.'},
     {t:'Volume minimo del loop', sub:'Il volume corretto: a fine inspirazione completa l’ADV non si attiva per un pelo. Polmoni troppo pieni = respirazione scomoda e assetto instabile, specie in risalita.'},
     {t:'Respira in modo regolare e profondo', sub:'Mai trattenere il respiro: non risparmi comunque gas e peggiori l’assorbimento di CO₂.'},
     {t:'O₂ a piccoli colpi, continuando a respirare', sub:'Così eviti picchi di PPO₂.'},
@@ -348,7 +351,8 @@ const CHECKLISTS = [
     {group:'Ogni settimana di immersioni'},
     {t:'Cell check anti current-limiting', sub:'A inizio settimana di immersioni e a 30 minuti (o a fine) di un’immersione: vedi procedura a 6 m nella scheda “In acqua”.'},
     {group:'Ogni 6 mesi'},
-    {t:'Aggiungi una cella nuova', sub:'Sostituisci la più vecchia ancora nell’unità, o quella che reagisce più lentamente a un aumento di PPO₂. Scrivi la data sulla cella. Posizioni fisse: celle 1-2 sul primo rEvodream (destro), cella 3 sul secondo (sinistro).'},
+    {t:'Aggiungi una cella nuova', sub:'Sostituisci la più vecchia ancora nell’unità, o quella che reagisce più lentamente a un aumento di PPO₂. Scrivi la data sulla cella. Posizioni fisse: celle 1-2 sul primo rEvodream (destro), cella 3 sul secondo (sinistro).',
+     sub2:'Sostituisci la più vecchia ancora nell’unità, o quella che reagisce più lentamente a un aumento di PPO₂. Scrivi la data sulla cella. Posizioni fisse: celle 1–3 sul controller (Petrel 3), 4 (e 5) sul monitor indipendente (NERD 2). Solo celle R22D-rEvo / CR22D-rEvo.'},
     {group:'Quando hai un dubbio'},
     {t:'Test dell’orifice (100 → 50 bar)', sub:'Bombola O₂ piena: apri lentamente la rubinetteria e richiudila. Cronometra quanto impiega la pressione a scendere da 100 a 50 bar e confrontalo con il tuo riferimento: molto più lento = orifice ostruito, molto più veloce = flusso eccessivo. Mai durante l’immersione.', fields:[{k:'orifice_min',label:'minuti'}]},
     {group:'Annuale'},
@@ -530,6 +534,7 @@ function renderInfo(){
     <h3>SEMPRE</h3>
     <ul class="always">
       <li>Immergiti con rEvodream in perfetto stato e controllali regolarmente.</li>
+      <li>Leggi il manuale prima di immergerti con il rEvo la prima volta.</li>
       <li>Fai l’addestramento rEvo prima di immergerti con un rEvo.</li>
       <li>Fai i controlli pre-immersione (checklist obbligatoria).</li>
       <li>Abbastanza ossigeno e diluente nelle bombole.</li>
