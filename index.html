@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1b12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>rEvo Checklist</title>
+<style>
+  :root{
+    --bg:#0d1b12; --card:#14241a; --card2:#0f1e15; --line:#22382b;
+    --txt:#e8f2ea; --dim:#93ab99; --green:#00b551; --green-dark:#00843D;
+    --yellow:#FFC72C; --red:#ff5252; --blue:#4dabf7;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:16px; line-height:1.4;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  header{
+    position:sticky; top:0; z-index:20; background:var(--bg);
+    border-bottom:1px solid var(--line);
+    padding:10px 14px 0 14px;
+  }
+  .topbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  h1{font-size:20px; margin:0; letter-spacing:.5px; display:flex; align-items:center; gap:8px;}
+  h1 .o2{color:var(--green);}
+  .mode-toggle{
+    margin-left:auto; display:flex; border:1px solid var(--line); border-radius:20px; overflow:hidden;
+    font-size:12px;
+  }
+  .mode-toggle button{
+    background:none; border:none; color:var(--dim); padding:6px 12px; font-size:12px; cursor:pointer;
+  }
+  .mode-toggle button.on{background:var(--green-dark); color:#fff; font-weight:600;}
+  /* scrubber widget */
+  .scrubber{
+    margin-top:10px; background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:8px 12px; display:flex; align-items:center; gap:10px; font-size:13px;
+  }
+  .scrubber label{color:var(--dim); white-space:nowrap;}
+  .scrubber input{
+    width:60px; background:var(--card2); border:1px solid var(--line); border-radius:6px;
+    color:var(--txt); font-size:15px; padding:4px 6px; text-align:center;
+  }
+  .scrubber .bar{flex:1; height:8px; background:var(--card2); border-radius:4px; overflow:hidden; min-width:60px;}
+  .scrubber .bar i{display:block; height:100%; background:var(--green); border-radius:4px; transition:width .3s;}
+  .scrubber .rem{white-space:nowrap; font-weight:600;}
+  /* tabs */
+  nav{
+    display:flex; overflow-x:auto; gap:4px; padding:10px 0 8px 0;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  }
+  nav::-webkit-scrollbar{display:none;}
+  nav button{
+    flex:0 0 auto; background:var(--card); color:var(--dim); border:1px solid var(--line);
+    border-radius:18px; padding:7px 13px; font-size:13.5px; cursor:pointer; white-space:nowrap;
+  }
+  nav button.on{background:var(--green-dark); border-color:var(--green-dark); color:#fff; font-weight:600;}
+  nav button .cnt{font-size:11px; opacity:.85;}
+  main{padding:12px 14px 90px 14px; max-width:640px; margin:0 auto;}
+  .listhead{display:flex; align-items:center; gap:10px; margin:6px 0 12px 0; flex-wrap:wrap;}
+  .listhead h2{font-size:17px; margin:0; flex:1;}
+  .progress{
+    height:6px; background:var(--card); border-radius:3px; overflow:hidden; width:100%;
+  }
+  .progress i{display:block; height:100%; background:var(--green); transition:width .3s; border-radius:3px;}
+  .reset-btn{
+    background:none; border:1px solid var(--line); color:var(--dim); border-radius:8px;
+    padding:6px 12px; font-size:12.5px; cursor:pointer;
+  }
+  .desc{color:var(--dim); font-size:13px; margin:0 0 12px 0;}
+  .group{
+    margin:18px 0 8px 0; font-size:12.5px; font-weight:700; letter-spacing:1.2px;
+    text-transform:uppercase; color:var(--green);
+    display:flex; align-items:center; gap:8px;
+  }
+  .group::after{content:""; flex:1; height:1px; background:var(--line);}
+  /* items */
+  .item{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:12px; margin-bottom:8px; display:flex; gap:12px; align-items:flex-start;
+    cursor:pointer; user-select:none; transition:background .15s;
+  }
+  .item.checked{background:var(--card2); border-color:var(--line);}
+  .item.checked .t{color:var(--dim); text-decoration:line-through; text-decoration-color:rgba(147,171,153,.5);}
+  .box{
+    flex:0 0 26px; width:26px; height:26px; border:2px solid var(--dim); border-radius:8px;
+    display:flex; align-items:center; justify-content:center; margin-top:1px;
+    font-size:16px; color:transparent; transition:all .15s;
+  }
+  .item.checked .box{background:var(--green); border-color:var(--green); color:#fff;}
+  .body{flex:1; min-width:0;}
+  .t{font-size:15.5px; font-weight:500;}
+  .sub{font-size:13px; color:var(--dim); margin-top:3px;}
+  .badge{
+    display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.5px;
+    background:rgba(77,171,247,.15); color:var(--blue); border-radius:5px; padding:1px 6px;
+    margin-right:6px; vertical-align:2px;
+  }
+  .warnb{background:rgba(255,199,44,.15); color:var(--yellow);}
+  .fields{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
+  .fields .f{display:flex; align-items:center; gap:5px; font-size:12.5px; color:var(--dim);}
+  .fields input{
+    width:64px; background:var(--bg); border:1px solid var(--line); border-radius:7px;
+    color:var(--txt); font-size:15px; padding:6px; text-align:center;
+  }
+  .timerbtn{
+    margin-top:8px; background:var(--card2); border:1px solid var(--green-dark); color:var(--green);
+    border-radius:8px; padding:7px 14px; font-size:14px; font-weight:600; cursor:pointer;
+    font-variant-numeric:tabular-nums;
+  }
+  .timerbtn.running{background:var(--green-dark); color:#fff;}
+  .timerbtn.done{background:var(--yellow); border-color:var(--yellow); color:#1A1A1A; animation:blink 1s infinite;}
+  @keyframes blink{50%{opacity:.55;}}
+  /* info cards */
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:14px; margin-bottom:10px; font-size:14px;
+  }
+  .card h3{margin:0 0 8px 0; font-size:15px; color:var(--green);}
+  .card ul{margin:6px 0 0 0; padding-left:20px;}
+  .card li{margin-bottom:5px;}
+  .card.warn{border-color:rgba(255,199,44,.5); background:rgba(255,199,44,.07);}
+  .card.warn h3{color:var(--yellow);}
+  .card.danger{border-color:rgba(255,82,82,.5); background:rgba(255,82,82,.06);}
+  .card.danger h3{color:var(--red);}
+  .card a{color:var(--blue);}
+  .always li::marker{color:var(--green);}
+  .never li::marker{color:var(--red);}
+  .footer-actions{
+    position:fixed; bottom:0; left:0; right:0; z-index:20;
+    background:linear-gradient(transparent, var(--bg) 35%);
+    padding:18px 14px calc(12px + env(safe-area-inset-bottom)) 14px;
+    display:flex; gap:10px; justify-content:center;
+  }
+  .footer-actions button{
+    background:var(--card); color:var(--txt); border:1px solid var(--line);
+    border-radius:22px; padding:11px 20px; font-size:14px; font-weight:600; cursor:pointer;
+    box-shadow:0 4px 16px rgba(0,0,0,.4);
+  }
+  .footer-actions button.primary{background:var(--green-dark); border-color:var(--green-dark); color:#fff;}
+  .toast{
+    position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+    background:var(--green-dark); color:#fff; border-radius:10px; padding:10px 18px;
+    font-size:14px; z-index:50; opacity:0; transition:opacity .3s; pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+  .complete-banner{
+    background:var(--green-dark); color:#fff; border-radius:12px; padding:12px 16px;
+    text-align:center; font-weight:700; margin-bottom:12px; display:none;
+  }
+  .complete-banner.show{display:block;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <h1>rEvo <span class="o2">✓</span> Checklist</h1>
+    <div class="mode-toggle" id="modeToggle">
+      <button data-mode="mccr">mCCR</button>
+      <button data-mode="hccr">hCCR / rMS</button>
+    </div>
+  </div>
+  <div class="scrubber">
+    <label for="scrubMin">Scrubber</label>
+    <input type="number" id="scrubMin" min="0" max="999" inputmode="numeric" placeholder="0">
+    <span style="color:var(--dim)">min usati</span>
+    <div class="bar"><i id="scrubBar"></i></div>
+    <span class="rem" id="scrubRem"></span>
+  </div>
+  <nav id="tabs"></nav>
+</header>
+
+<main id="main"></main>
+
+<div class="footer-actions">
+  <button class="primary" id="newDive">🤿 Nuova immersione</button>
+  <button id="resetAll">Azzera tutto</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ================= DATI (dal Manuale rEvo III CE v05 e checklist ufficiale v0.4) ================= */
+
+const CHECKLISTS = [
+{
+  id:'build', tab:'🔧 Montaggio', title:'Montaggio (build check)',
+  desc:'Checklist ufficiale rEvo v0.4 + manuale §4.1–4.2. Da fare con calma, prima di partire.',
+  items:[
+    {group:'Considerazioni preliminari'},
+    {t:'Tempo scrubber: minuti già usati + immersione pianificata ≤ 160 min?', sub:'Altrimenti ricarica entrambi gli scrubber con sorb fresco. Aggiorna il contatore in alto.'},
+    {t:'Batterie rEvodream OK?', sub:'Nessuna indicazione di batteria scarica nell’immersione precedente? Sostituiscile a casa, MAI al punto d’immersione (rischio umidità nell’alloggiamento).'},
+    {group:'Bombole e gas'},
+    {t:'Analizza il contenuto della bombola O₂', fields:[{k:'o2_pct',label:'%O₂'},{k:'o2_bar',label:'bar'}]},
+    {t:'Analizza il contenuto della bombola diluente', fields:[{k:'dil_o2',label:'%O₂'},{k:'dil_he',label:'%He'},{k:'dil_bar',label:'bar'}]},
+    {t:'Pressioni sufficienti per l’immersione pianificata?', sub:'Anche nello scenario peggiore.'},
+    {t:'Installa le bombole sull’unità', sub:'Verifica il corretto aggancio dei quick release.'},
+    {t:'Collega gli erogatori alle rubinetterie', sub:'Connessione primo stadio–rubinetto pulita: niente sporco o grasso non O₂-compatibile.'},
+    {group:'Celle ed elettronica'},
+    {t:'Controlla i millivolt delle celle in aria', fields:[{k:'mv1',label:'cella 1'},{k:'mv2',label:'cella 2'},{k:'mv3',label:'cella 3'}]},
+    {t:'Batteria esterna: fai sparare il solenoide 10 s', sub:'Tensione EXT > 6.5 V.', hccr:true},
+    {t:'Vita delle celle O₂: la più giovane ha meno di 7 mesi?', sub:'Altrimenti aggiungi/sostituisci una cella e scrivi la data sulla cella. Sostituisci sempre la più vecchia o quella che reagisce più lentamente. Solo celle R22D-rEvo / CR22D-rEvo.'},
+    {group:'Scrubber e polmoni'},
+    {t:'Assorbitore di umidità nel polmone di inspirazione', sub:'Arrotolato, SOTTO il tubo anti-collasso.'},
+    {t:'Griglia celle (e griglia solenoide) installate correttamente', sub:'Controlla il percorso dei cavi.', },
+    {t:'Scrubber nell’unità: TOP-marker sullo scrubber di espirazione (in alto)', sub:'rMS: frecce verso l’alto. Se hai fatto il cycling, il canestro fresco va in basso (inspirazione).'},
+    {t:'O-ring degli scrubber: pulisci le superfici di tenuta, ingrassa se serve', sub:'Solo grasso O₂-compatibile (es. Tribolube 71). Occhio a sabbia e sporco.'},
+    {t:'Chiudi il coperchio, avvita a mano', sub:'Non serrare eccessivamente.'},
+    {group:'Loop respiratorio'},
+    {t:'Stereo check delle valvole di non ritorno (a fungo)', sub:'Boccaglio aperto: blocca il lato espirazione (connettore rosso) e soffia → non deve uscire gas; blocca il lato inspirazione (nero) e aspira → non deve entrare gas. Boccaglio chiuso: soffia nel lato nero → niente gas dal boccaglio; aspira dal lato rosso → niente gas nel boccaglio.'},
+    {t:'Boccaglio e O-ring del loop: superfici pulite, ingrassa se serve'},
+    {t:'Installa il loop sul rebreather', sub:'Connettore rosso nella porta con il pulsante rosso: il flusso va in senso antiorario, da destra verso sinistra. Le connessioni marcate (scanalatura = espirazione) e i diametri diversi impediscono inversioni.'},
+    {t:'Avvolgi il cavo degli HUD 3–4 giri in senso orario attorno al corrugato'},
+  ]
+},
+{
+  id:'closed', tab:'🔒 Closed check', title:'Closed check',
+  desc:'Checklist ufficiale rEvo v0.4. A unità assemblata e chiusa, prima di andare in acqua.',
+  items:[
+    {group:'Ossigeno'},
+    {t:'Apri l’O₂ LENTAMENTE / aggiungi O₂ manualmente / pressione?', sub:'Le rubinetterie O₂ si aprono sempre lentamente: rischio incendio per compressione adiabatica. Nessuna perdita tra primo stadio e rubinetto.'},
+    {t:'Accendi lo Shearwater: set-point alto → il solenoide spara?', hccr:true},
+    {t:'Imposta il set-point Shearwater a 0.19', hccr:true},
+    {t:'Flush O₂ completo ×3', sub:'DSV in bocca, svuota i polmoni espirando dal naso, inietta O₂ fino a leggera sovrappressione, lascia sfiatare dagli angoli della bocca. Ripeti 3 volte, poi chiudi il DSV e riaprilo a fessura: il piccolo flusso in uscita conferma che l’orifice eroga e che il loop resta a 1 ata.'},
+    {t:'rEvodream accesi: calibra', sub:'Calibrazione OK = lampeggio veloce del LED verde. Valori corretti in aria dopo: 0.20–0.22.'},
+    {t:'Calibra lo Shearwater', hccr:true},
+    {t:'Batterie: rEvodream OK?', sub:'> 1.25 V (o > 3.30 V a seconda della batteria); hCCR: EXT > 6.5 V. MAI immergersi con indicazione di batteria scarica.'},
+    {t:'Chiudi l’O₂: la pressione scende?', sub:'Il calo conferma che l’orifice sta erogando (CMF ~0.6 l/min).'},
+    {t:'Depressurizza la linea O₂'},
+    {group:'Diluente'},
+    {t:'Apri il diluente / aspira: l’ADV interviene? / chiudi il loop'},
+    {t:'Aggiungi diluente manualmente / pressione?'},
+    {t:'OPV: test positivo (sovrappressione)', sub:'A boccaglio chiuso premi l’aggiunta manuale di diluente: il gas deve uscire SOLO dalla valvola di sovrappressione. Ascolta con attenzione eventuali perdite altrove.'},
+    {t:'Gonfia il GAV al massimo: resta gonfio?'},
+    {t:'Flush diluente: la PPO₂ segna 0.21–0.22?'},
+    {t:'Chiudi il diluente: la pressione resta?'},
+    {t:'Avvia il test negativo', sub:'Bombole chiuse, “vuota” il loop fino a contrarre i corrugati, chiudi il boccaglio. Attendi 2 minuti e riapri: deve esserci un ‘hiss’ chiaramente udibile, altrimenti cerca la perdita. MAI senza scrubber montati (i polmoni verrebbero risucchiati).', timer:120},
+    {group:'Bailout e finale'},
+    {t:'Apri il bailout: pressione? / respira dall’erogatore: la pressione tiene?', sub:'Miscela analizzata e corretta per l’immersione.'},
+    {t:'Controlla tutte le connessioni'},
+    {t:'Chiudi il bailout / verifica la valvola dell’erogatore inspirando'},
+    {t:'Gas programmati nel computer (CC/OC)'},
+    {t:'Tempo scrubber sufficiente per la prossima immersione?'},
+    {t:'Test negativo OK? (hiss alla riapertura)', sub:'hCCR: spegni lo Shearwater.'},
+    {t:'Controlla imbrago, cinghiolo inguinale, gag strap del boccaglio — FINE'},
+  ]
+},
+{
+  id:'prejump', tab:'🤿 Pre-jump', title:'Pre-jump check',
+  desc:'Checklist ufficiale rEvo v0.4 + manuale §4.3. Con l’unità indosso, subito prima di entrare in acqua.',
+  items:[
+    {group:'Vestizione'},
+    {t:'rEvo alto e ben fissato sulla schiena', sub:'Cinghie tirate, l’unità non deve oscillare. Cinghiolo inguinale se previsto.'},
+    {group:'Bailout'},
+    {t:'Apri il bailout / pressione?'},
+    {t:'Respira dal bailout / la pressione tiene?'},
+    {t:'Connessioni a posto?'},
+    {group:'Diluente'},
+    {t:'Apri il diluente / pressione?'},
+    {t:'ADV: aspira dal boccaglio → interviene?'},
+    {t:'Aggiungi diluente manualmente / pressione?'},
+    {t:'Il GAV si gonfia e resta gonfio?'},
+    {t:'La muta stagna si gonfia?'},
+    {group:'Ossigeno e loop'},
+    {t:'Apri l’O₂ LENTAMENTE / pressione?'},
+    {t:'Shearwater acceso: set-point basso / solenoide?', hccr:true},
+    {t:'Aggiungi O₂ manualmente / pressione?'},
+    {t:'rEvodream accesi', sub:'Se indicano PPO₂ tra 0.97 e 1.01 dopo il flush O₂ puoi procedere, altrimenti ricalibra.'},
+    {t:'PPO₂ > 0.7'},
+    {t:'Batterie rEvodream? (Shearwater?)'},
+    {t:'Pre-breathe 5 minuti', sub:'Seduto, con la maschera indossata. PPO₂ sempre > 0.5. I due display concordano (differenza max 0.03)? Gli HUD corrispondono ai display? Nessuna batteria scarica? Ti senti bene? hCCR/rMS: in alternativa RCT > 0:45.', timer:300},
+    {group:'Ultimi controlli'},
+    {t:'Gas nel computer? Modalità CC?'},
+    {t:'Buddy check', sub:'Connessioni, bailout, pressioni, rEvodream funzionanti.'},
+    {t:'Maschera, pinne, ricambi, cesoie, luci…'},
+  ]
+},
+{
+  id:'water', tab:'🌊 In acqua', title:'In acqua — promemoria',
+  desc:'Manuale §4.4. Non è una checklist da spuntare: regole da avere in testa durante l’immersione.',
+  info:true,
+  items:[
+    {t:'IMMERGITI SEMPRE IN VERDE', sub:'Entrando in acqua, durante l’immersione e uscendo: su ENTRAMBI gli HUD il LED verde deve essere acceso. Se non lo è, correggi immediatamente.'},
+    {t:'Bubble check a 3–5 m', sub:'Unità ben fissata? Niente componenti a penzoloni? Nessuna bolla?'},
+    {t:'CONOSCI SEMPRE LA TUA PPO₂', sub:'Controlla regolarmente i display: corrispondono agli HUD?'},
+    {t:'Volume minimo del loop', sub:'Il volume corretto: a fine inspirazione completa l’ADV non si attiva per un pelo. Polmoni troppo pieni = respirazione scomoda e assetto instabile, specie in risalita.'},
+    {t:'Respira in modo regolare e profondo', sub:'Mai trattenere il respiro: non risparmi comunque gas e peggiori l’assorbimento di CO₂.'},
+    {t:'O₂ a piccoli colpi, continuando a respirare', sub:'Così eviti picchi di PPO₂.'},
+    {t:'In risalita la PPO₂ scende', sub:'Aggiungi O₂ più spesso, tieni il loop al minimo, mai risalite rapide o non controllate.'},
+    {t:'Cell check a 6 m (almeno 1 volta per settimana di immersioni)', sub:'Con il buddy che ti osserva: premi l’O₂ manuale (attento all’assetto). I display devono salire almeno a 1.55: rosso lampeggia e il verde si spegne → le celle non sono current-limited. Poi diluente per tornare a PPO₂ sicura. Ripeti a 30 minuti o a fine immersione.'},
+    {t:'Fine immersione: boccaglio in bocca e maschera sul viso finché non sei all’asciutto', sub:'Se devi toglierlo in superficie, chiudilo SEMPRE prima: un boccaglio aperto svuota i polmoni del rebreather e perdi galleggiabilità.'},
+    {t:'A terra', sub:'Togli il boccaglio, chiudi le bombole, sfila l’unità.'},
+  ]
+},
+{
+  id:'between', tab:'🔄 Tra immersioni', title:'Tra due immersioni (stessa giornata)',
+  desc:'Manuale §4.5.',
+  items:[
+    {t:'Sciacqua il loop', sub:'Boccaglio chiuso, versa acqua dolce fredda o tiepida nel lato inspirazione (connettore nero), lascia scolare. MAI acqua molto calda o alta pressione: danneggiano le valvole a fungo.'},
+    {t:'Scrubber non esauriti: doppio sacchetto o contenitore ermetico', sub:'Così il sorb non si secca.'},
+    {t:'Assorbitore di umidità: sciacqua in acqua dolce, strizza, lascia asciugare'},
+    {t:'Lascia il rebreather aperto ad asciugare', sub:'In piedi o disteso con il coperchio verso l’alto; porta-celle fuori dal polmone di inspirazione perché asciughi anche lì.'},
+    {t:'Annota il tempo scrubber usato', sub:'Aggiorna il contatore in alto: il limite è 160 minuti totali.'},
+  ]
+},
+{
+  id:'endday', tab:'🌙 Fine giornata', title:'Fine giornata',
+  desc:'Manuale §4.6.',
+  items:[
+    {t:'Chiudi le rubinetterie delle bombole'},
+    {t:'Sciacqua l’esterno con acqua dolce', sub:'Unità completamente chiusa (boccaglio incluso), GAV gonfio a metà. Risciacqua erogatori e pulsanti dell’inflator; premi più volte i pulsanti manuali O₂/diluente sotto il getto per eliminare sale e sporco.'},
+    {t:'Apri il coperchio', sub:'Rimetti subito la vite di fissaggio sul suo filo per non perderla.'},
+    {t:'Scrubber con tempo residuo: doppio sacchetto o contenitore ermetico', sub:'Mai in un posto caldo o al sole diretto: si seccano e diventano inutilizzabili.'},
+    {t:'Togli porta-celle e fissaggio ADV, appoggiali sulle bombole'},
+    {t:'Moisture pads: strizza e sciacqua in acqua dolce'},
+    {t:'Sciacqua i polmoni', sub:'Versa acqua dolce in entrambi i polmoni e agita (corrugato connesso, boccaglio chiuso). Lascia agire 5 minuti, poi togli il corrugato, capovolgi l’unità e svuota. Lascia asciugare.'},
+    {t:'Sciacqua il loop', sub:'Boccaglio chiuso, acqua nel lato inspirazione, lascia scolare.'},
+    {t:'Dopo 5 giorni consecutivi di immersioni: disinfetta', sub:'Salvo diversa indicazione: soluzione all’1% di Virkon S in acqua fredda in polmoni, corrugati e boccaglio; lascia 10 minuti e risciacqua bene con acqua dolce. NON bagnare le celle né la griglia di iniezione.'},
+    {t:'Conserva l’unità aperta, in luogo asciutto, non al sole', sub:'Le celle durano di più se asciutte e ventilate. Copri con una retina leggera contro gli insetti. Stoccaggio: sopra zero e sotto 50 °C.'},
+  ]
+},
+{
+  id:'maint', tab:'🗓 Periodica', title:'Manutenzione periodica',
+  desc:'Manuale §3.6, §4.7 e capitolo 5. Scadenze da rispettare nel tempo.',
+  items:[
+    {group:'Mensile'},
+    {t:'O-ring del coperchio e del loop: pulisci, controlla, ingrassa', sub:'Almeno una volta al mese, o prima se coperchio/corrugati diventano duri da montare. Solo grasso O₂-compatibile.'},
+    {group:'Ogni settimana di immersioni'},
+    {t:'Cell check anti current-limiting', sub:'A inizio settimana di immersioni e a 30 minuti (o a fine) di un’immersione: vedi procedura a 6 m nella scheda “In acqua”.'},
+    {group:'Ogni 6 mesi'},
+    {t:'Aggiungi una cella nuova', sub:'Sostituisci la più vecchia ancora nell’unità, o quella che reagisce più lentamente a un aumento di PPO₂. Scrivi la data sulla cella. Posizioni fisse: celle 1-2 sul primo rEvodream (destro), cella 3 sul secondo (sinistro).'},
+    {group:'Quando hai un dubbio'},
+    {t:'Test dell’orifice (100 → 50 bar)', sub:'Bombola O₂ piena: apri lentamente la rubinetteria e richiudila. Cronometra quanto impiega la pressione a scendere da 100 a 50 bar e confrontalo con il tuo riferimento: molto più lento = orifice ostruito, molto più veloce = flusso eccessivo. Mai durante l’immersione.', fields:[{k:'orifice_min',label:'minuti'}]},
+    {group:'Annuale'},
+    {t:'Revisione degli erogatori (primo stadi)', sub:'Da tecnico competente. Primo stadio O₂ pulito per uso ossigeno. Pressione intermedia O₂: 11.5–12 bar (MAI oltre 12); diluente: 9–10 bar.'},
+    {group:'Controlli visivi ricorrenti'},
+    {t:'Fascette (boccaglio-DSV, corrugati)', sub:'Se indebolite, o in caso di dubbio, sostituiscile.'},
+    {t:'Parti in gomma: max 10 anni', sub:'Corrugati, boccaglio, O-ring. Tubi gas O₂ interni: 5 anni; altri tubi e polmoni: 10 anni (sostituzione solo fabbrica o centro autorizzato). Il sole diretto accorcia la vita di tutto.'},
+    {group:'Ogni 5 anni'},
+    {t:'Ispezione completa dell’unità', sub:'Presso il produttore o un centro assistenza rEvo autorizzato (include tubi interni e polmoni).'},
+  ]
+},
+{
+  id:'info', tab:'ℹ️ Info', title:'Riferimenti', info:true, custom:true, items:[]
+},
+];
+
+/* ================= STATO ================= */
+
+const LS_KEY = 'revoChecklist.v1';
+let state = { mode:'mccr', checks:{}, values:{}, scrub:'', dates:{} };
+try{ Object.assign(state, JSON.parse(localStorage.getItem(LS_KEY)||'{}')); }catch(e){}
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+let currentTab = location.hash ? location.hash.slice(1) : 'build';
+if(!CHECKLISTS.some(c=>c.id===currentTab)) currentTab='build';
+
+/* ================= RENDER ================= */
+
+const $tabs = document.getElementById('tabs');
+const $main = document.getElementById('main');
+
+function visibleItems(cl){
+  return cl.items.filter(it => !it.group && (!it.hccr || state.mode==='hccr'));
+}
+function counts(cl){
+  if(cl.info) return null;
+  const vis = visibleItems(cl);
+  const done = vis.filter((it,i)=> state.checks[keyOf(cl,it)] ).length;
+  return {done, tot:vis.length};
+}
+function keyOf(cl,it){ return cl.id+'|'+it.t; }
+
+function renderTabs(){
+  $tabs.innerHTML='';
+  CHECKLISTS.forEach(cl=>{
+    const b=document.createElement('button');
+    const c=counts(cl);
+    b.innerHTML = cl.tab + (c? ` <span class="cnt">${c.done}/${c.tot}</span>`:'');
+    if(cl.id===currentTab) b.classList.add('on');
+    b.onclick=()=>{ currentTab=cl.id; location.hash=cl.id; render(); window.scrollTo(0,0); };
+    $tabs.appendChild(b);
+  });
+}
+
+function renderList(cl){
+  const frag=document.createDocumentFragment();
+
+  const head=document.createElement('div'); head.className='listhead';
+  const h2=document.createElement('h2'); h2.textContent=cl.title; head.appendChild(h2);
+  if(!cl.info){
+    const rb=document.createElement('button'); rb.className='reset-btn'; rb.textContent='↺ Azzera';
+    rb.onclick=()=>{ resetList(cl.id); };
+    head.appendChild(rb);
+  }
+  frag.appendChild(head);
+
+  if(!cl.info){
+    const c=counts(cl);
+    const pr=document.createElement('div'); pr.className='progress';
+    pr.innerHTML=`<i style="width:${c.tot? (100*c.done/c.tot):0}%"></i>`;
+    frag.appendChild(pr);
+    const banner=document.createElement('div');
+    banner.className='complete-banner'+(c.tot>0 && c.done===c.tot?' show':'');
+    banner.textContent='✔ Checklist completata';
+    frag.appendChild(banner);
+  }
+  if(cl.desc){
+    const d=document.createElement('p'); d.className='desc';
+    d.textContent=cl.desc + (state.dates[cl.id]? ' — azzerata: '+state.dates[cl.id]:'');
+    d.style.marginTop='10px';
+    frag.appendChild(d);
+  }
+
+  cl.items.forEach(it=>{
+    if(it.group){
+      const g=document.createElement('div'); g.className='group'; g.textContent=it.group;
+      frag.appendChild(g); return;
+    }
+    if(it.hccr && state.mode!=='hccr') return;
+
+    const key=keyOf(cl,it);
+    const row=document.createElement('div');
+    row.className='item'+(state.checks[key]?' checked':'');
+    if(cl.info) row.style.cursor='default';
+
+    const box=document.createElement('div'); box.className='box'; box.textContent='✓';
+    if(cl.info) box.style.display='none';
+    row.appendChild(box);
+
+    const body=document.createElement('div'); body.className='body';
+    const t=document.createElement('div'); t.className='t';
+    t.innerHTML = (it.hccr?'<span class="badge">hCCR/rMS</span>':'') + escapeHtml(it.t);
+    body.appendChild(t);
+    if(it.sub){ const s=document.createElement('div'); s.className='sub'; s.textContent=it.sub; body.appendChild(s); }
+
+    if(it.fields){
+      const fw=document.createElement('div'); fw.className='fields';
+      it.fields.forEach(f=>{
+        const fk=cl.id+'|'+f.k;
+        const lab=document.createElement('label'); lab.className='f';
+        const inp=document.createElement('input');
+        inp.type='text'; inp.inputMode='decimal'; inp.placeholder='—';
+        inp.value=state.values[fk]||'';
+        inp.onclick=e=>e.stopPropagation();
+        inp.oninput=()=>{ state.values[fk]=inp.value; save(); };
+        lab.appendChild(inp);
+        const sp=document.createElement('span'); sp.textContent=f.label; lab.appendChild(sp);
+        fw.appendChild(lab);
+      });
+      body.appendChild(fw);
+    }
+
+    if(it.timer){
+      const tb=document.createElement('button'); tb.className='timerbtn';
+      tb.textContent='▶ Timer '+fmtTime(it.timer);
+      tb.onclick=e=>{ e.stopPropagation(); toggleTimer(tb, it.timer); };
+      body.appendChild(tb);
+    }
+
+    row.appendChild(body);
+    if(!cl.info){
+      row.onclick=()=>{
+        state.checks[key]=!state.checks[key]; save();
+        row.classList.toggle('checked', !!state.checks[key]);
+        if(navigator.vibrate) navigator.vibrate(10);
+        renderTabs(); updateProgress(cl);
+      };
+    }
+    frag.appendChild(row);
+  });
+
+  return frag;
+}
+
+function updateProgress(cl){
+  const c=counts(cl); if(!c) return;
+  const bar=$main.querySelector('.progress i');
+  if(bar) bar.style.width=(c.tot? 100*c.done/c.tot:0)+'%';
+  const banner=$main.querySelector('.complete-banner');
+  if(banner) banner.classList.toggle('show', c.tot>0 && c.done===c.tot);
+}
+
+function renderInfo(){
+  const frag=document.createDocumentFragment();
+  const wrap=document.createElement('div');
+  wrap.innerHTML=`
+  <div class="listhead"><h2>Riferimenti</h2></div>
+  <div class="card danger">
+    <h3>⚠ Avvertenza</h3>
+    Un rebreather è una macchina, e le macchine si rompono: non chiederti SE avrai un problema, ma QUANDO.
+    Questa app è solo un promemoria personale: <b>non sostituisce l’addestramento con un’agenzia riconosciuta né il manuale ufficiale rEvo</b>.
+    Non immergerti mai con un’unità non funzionante al 100% e non modificare nulla sull’unità (decade l’omologazione CE).
+  </div>
+  <div class="card">
+    <h3>Limiti d’uso (rEvo III CE)</h3>
+    <ul>
+      <li>Profondità max: <b>40 m</b> con diluente aria; <b>100 m</b> con trimix/heliox e PPN₂ ≤ 4.0 bar.</li>
+      <li>PPO₂ in uso corretto: <b>min 0.5 – max 1.55 bar</b>.</li>
+      <li>Durata scrubber: <b>160 minuti</b> (40 m, 4 °C, 2.7 kg Sofnolime 797).</li>
+      <li>Materiale approvato: solo <b>Sofnolime 797</b>, 2 canestri da 1.35 kg.</li>
+      <li>Sempre con fonte di gas alternativa indipendente (bailout) sufficiente a terminare l’immersione.</li>
+      <li>Temperatura acqua: 4–34 °C. Solo grasso O₂-compatibile (Tribolube 71).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>SEMPRE</h3>
+    <ul class="always">
+      <li>Immergiti con rEvodream in perfetto stato e controllali regolarmente.</li>
+      <li>Fai l’addestramento rEvo prima di immergerti con un rEvo.</li>
+      <li>Fai i controlli pre-immersione (checklist obbligatoria).</li>
+      <li>Abbastanza ossigeno e diluente nelle bombole.</li>
+      <li>Porta un sistema di bailout.</li>
+      <li>Manutenzione secondo le indicazioni del costruttore.</li>
+      <li>Annota il tempo scrubber.</li>
+      <li>Monta gli scrubber sempre nella stessa posizione (TOP-marker).</li>
+      <li>Usa solo grasso O₂-compatibile.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>MAI</h3>
+    <ul class="never">
+      <li>Scendere o risalire troppo velocemente.</li>
+      <li>Immergerti con indicazione di batteria scarica sui rEvodream.</li>
+      <li>Immergerti se l’unità non è funzionante al 100%.</li>
+      <li>Usare assorbente scaduto o riutilizzare sorb già versato fuori dal canestro.</li>
+      <li>Conservare le celle O₂ in atmosfera inerte per allungarne la vita.</li>
+      <li>Riempire la bombola O₂ con NITROX.</li>
+      <li>Riempire la bombola diluente con gas inerte puro o ossigeno.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Top Marker — cambio scrubber senza errori</h3>
+    <ul>
+      <li>1 — Estrai il canestro superiore, quello con il TOP-marker.</li>
+      <li>2 — Svita il TOP-marker e <b>svuota subito</b> quel canestro (così sei certo di aver buttato quello esausto).</li>
+      <li>3 — Avvita il TOP-marker sul canestro rimasto (pieno): va in posizione superiore, o in contenitore ermetico se hai finito.</li>
+      <li>4 — Ricarica il canestro vuoto: va in posizione inferiore, o in contenitore ermetico.</li>
+      <li>5 — Annota sul log che hai ricaricato il canestro inferiore.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Drill da tenere allenati (Appendice A)</h3>
+    <ul>
+      <li>PPO₂ alta / PPO₂ bassa</li>
+      <li>PPO₂ bassa + bombola O₂ vuota / PPO₂ alta + diluente vuoto</li>
+      <li>Sibilo senza variazione di PPO₂</li>
+      <li>Diluente vuoto + GAV vuoto / GAV rotto / inflator bloccato aperto</li>
+      <li>Acqua nel corrugato / acqua nel polmone di inspirazione</li>
+      <li>Valvola manuale O₂ o diluente bloccata aperta o chiusa</li>
+      <li>ADV bloccato aperto / ADV che non funziona</li>
+      <li>Celle con letture diverse / 1 cella morta / 2 celle morte</li>
+      <li>Mal di testa, vertigini, sensazioni strane → bailout</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Fonti</h3>
+    <ul>
+      <li><a href="http://www.revo-rebreathers.com/wp-content/uploads/2016/02/Manual_rEvo_III_CE_2014_v05_ENG.pdf">Manuale rEvo III CE 2014 v0.5 (EN)</a></li>
+      <li><a href="http://www.revo-rebreathers.com/wp-content/uploads/2016/02/rEvo_checklist_v04_031013.pdf">Checklist ufficiale rEvo v0.4 (EN)</a></li>
+      <li><a href="https://www.revo-rebreathers.com/revo-downloads/">rEvo Rebreathers — Downloads</a> (controlla sempre l’ultima versione)</li>
+    </ul>
+    I dati dell’app restano solo su questo dispositivo (localStorage).
+  </div>`;
+  frag.appendChild(wrap);
+  return frag;
+}
+
+function render(){
+  renderTabs();
+  $main.innerHTML='';
+  const cl=CHECKLISTS.find(c=>c.id===currentTab);
+  $main.appendChild(cl.custom? renderInfo() : renderList(cl));
+}
+
+/* ================= AZIONI ================= */
+
+function resetList(id, silent){
+  const cl=CHECKLISTS.find(c=>c.id===id);
+  cl.items.forEach(it=>{ if(!it.group) delete state.checks[keyOf(cl,it)]; });
+  state.dates[id]=new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  save(); render();
+  if(!silent) toast('Checklist azzerata');
+}
+
+document.getElementById('newDive').onclick=()=>{
+  if(!confirm('Nuova immersione: azzero Closed check, Pre-jump e Tra immersioni?')) return;
+  ['closed','prejump','between'].forEach(id=>resetList(id,true));
+  toast('Pronto per una nuova immersione 🤿');
+};
+document.getElementById('resetAll').onclick=()=>{
+  if(!confirm('Azzero TUTTE le checklist e i valori inseriti? (il contatore scrubber resta)')) return;
+  state.checks={}; state.values={}; state.dates={};
+  save(); render(); toast('Tutto azzerato');
+};
+
+/* mode toggle */
+const $mt=document.getElementById('modeToggle');
+function renderMode(){
+  $mt.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.mode===state.mode));
+}
+$mt.querySelectorAll('button').forEach(b=>{
+  b.onclick=()=>{ state.mode=b.dataset.mode; save(); renderMode(); render(); };
+});
+
+/* scrubber */
+const SCRUB_MAX=160;
+const $sm=document.getElementById('scrubMin');
+$sm.value=state.scrub||'';
+function renderScrub(){
+  const used=parseInt(state.scrub||'0',10)||0;
+  const rem=SCRUB_MAX-used;
+  const bar=document.getElementById('scrubBar');
+  bar.style.width=Math.min(100, 100*used/SCRUB_MAX)+'%';
+  bar.style.background = used>=140? 'var(--red)' : used>=100? 'var(--yellow)' : 'var(--green)';
+  document.getElementById('scrubRem').textContent = rem>=0? `${rem}′ su ${SCRUB_MAX}′` : `oltre limite!`;
+  document.getElementById('scrubRem').style.color = rem<20? 'var(--red)' : rem<60? 'var(--yellow)' : 'var(--txt)';
+}
+$sm.oninput=()=>{ state.scrub=$sm.value; save(); renderScrub(); };
+
+/* timer */
+let activeTimer=null;
+function fmtTime(s){ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function toggleTimer(btn, secs){
+  if(btn._int){ clearInterval(btn._int); btn._int=null; btn.className='timerbtn'; btn.textContent='▶ Timer '+fmtTime(secs); return; }
+  if(activeTimer && activeTimer._int){ clearInterval(activeTimer._int); activeTimer._int=null; activeTimer.className='timerbtn'; }
+  activeTimer=btn;
+  let left=secs;
+  btn.className='timerbtn running';
+  btn.textContent='⏸ '+fmtTime(left);
+  btn._int=setInterval(()=>{
+    left--;
+    if(left<=0){
+      clearInterval(btn._int); btn._int=null;
+      btn.className='timerbtn done'; btn.textContent='✔ Tempo! (tocca per riavviare)';
+      if(navigator.vibrate) navigator.vibrate([300,150,300,150,600]);
+      beep();
+    } else btn.textContent='⏸ '+fmtTime(left);
+  },1000);
+}
+function beep(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    [0,.35,.7].forEach(t0=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=880; g.gain.setValueAtTime(.4, ctx.currentTime+t0);
+      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+t0+.3);
+      o.start(ctx.currentTime+t0); o.stop(ctx.currentTime+t0+.3);
+    });
+  }catch(e){}
+}
+
+/* toast */
+let toastT=null;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* init */
+renderMode(); renderScrub(); render();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
