@@ -212,14 +212,33 @@
   .homebtn.primary{background:var(--green-dark); border-color:var(--green-dark); color:#fff;}
   .homebtn .ico{font-size:24px;}
   .homebtn .sub2{display:block; font-size:12.5px; font-weight:400; opacity:.75; margin-top:2px;}
-  .picker{margin:4px 0 14px 0; display:none;}
-  .picker.show{display:block;}
-  .picker button{
-    width:100%; display:flex; align-items:center; gap:10px;
-    background:var(--card2); border:1px solid var(--line); border-radius:12px;
-    color:var(--txt); padding:13px 14px; font-size:15px; font-weight:600; cursor:pointer; margin-bottom:6px;
+  .stepcard{
+    position:relative; background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:13px 14px; margin-bottom:10px; cursor:pointer;
   }
-  .picker button .pct{margin-left:auto; font-size:12px; color:var(--dim); font-weight:600;}
+  .stepcard.done{border-color:var(--green-dark); background:rgba(0,132,61,.10);}
+  .stephead{display:flex; align-items:center; gap:8px; margin-bottom:8px; padding-right:34px;}
+  .stepbadge{
+    background:var(--green-dark); color:#fff; font-size:10.5px; font-weight:800; letter-spacing:.8px;
+    border-radius:5px; padding:2px 7px; white-space:nowrap;
+  }
+  .stepwhen{color:var(--dim); font-size:12.5px; font-weight:600; text-transform:uppercase; letter-spacing:.5px;}
+  .steprow{display:flex; align-items:center; gap:12px;}
+  .steptitle{font-size:16.5px; font-weight:700; white-space:nowrap;}
+  .steprow .mini{flex:1; height:5px; background:var(--card2); border-radius:3px; overflow:hidden; min-width:40px;}
+  .steprow .mini i{display:block; height:100%; background:var(--green);}
+  .steprow .nums{font-size:12.5px; color:var(--dim); font-weight:600; white-space:nowrap;}
+  .stepcard.done .nums{color:var(--green);}
+  .steprst{
+    position:absolute; top:10px; right:10px; background:var(--card2); border:1px solid var(--line);
+    color:var(--dim); border-radius:8px; width:28px; height:28px; font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .alttoggle{
+    background:none; border:none; color:var(--dim); font-size:13.5px; font-weight:700;
+    padding:12px 2px 8px 2px; cursor:pointer; display:block;
+  }
+  .progrow.alt{background:var(--card2);}
   .sect{
     margin:20px 0 8px 0; font-size:12.5px; font-weight:700; letter-spacing:1.2px;
     text-transform:uppercase; color:var(--green);
@@ -325,7 +344,7 @@ const CHECKLISTS = [
 },
 {
   id:'build', tab:'🔧 Montaggio', title:'Controllo di montaggio',
-  desc:'Checklist italiana (Aldo) — rEvo v0.4. Da fare con calma, prima di partire.',
+  desc:'Step 1 — il giorno prima. Checklist italiana (Aldo), rEvo v0.4: da fare con calma, prima di partire.',
   items:[
     {t:'Analizzare il contenuto della bombola ossigeno', fields:[{k:'o2_pct',label:'%O₂',lg:'O₂ %O₂'},{k:'o2_bar',label:'bar',lg:'O₂ bar'}]},
     {t:'Analizzare il contenuto della bombola diluente', fields:[{k:'dil_o2',label:'%O₂',lg:'dil %O₂'},{k:'dil_he',label:'%He',lg:'dil %He'},{k:'dil_bar',label:'bar',lg:'dil bar'}]},
@@ -347,7 +366,7 @@ const CHECKLISTS = [
 },
 {
   id:'closed', tab:'🔒 Closed check', title:'Closed check',
-  desc:'Checklist italiana (Aldo) — versione 2025/11. A unità assemblata e chiusa, prima di andare in acqua.',
+  desc:'Step 2 — il giorno dell’immersione. Checklist italiana (Aldo), versione 2025/11: a unità assemblata e chiusa.',
   items:[
     {group:'Ossigeno'},
     {t:'Aprire O₂ \\ aggiungere O₂ manualmente \\ la pressione è stabile?'},
@@ -380,7 +399,7 @@ const CHECKLISTS = [
 },
 {
   id:'prejump', tab:'🤿 Pre-jump', title:'Pre-jump check',
-  desc:'Checklist ufficiale rEvo v0.4 + manuale §4.3. Con l’unità indosso, subito prima di entrare in acqua.',
+  desc:'Check finale — prima di entrare in acqua. Checklist ufficiale rEvo v0.4 + manuale §4.3, con l’unità indosso.',
   items:[
     {group:'Vestizione'},
     {t:'rEvo alto e ben fissato sulla schiena', sub:'Cinghie tirate, l’unità non deve oscillare. Cinghiolo inguinale se previsto.'},
@@ -487,8 +506,14 @@ const CHECKLISTS = [
 },
 ];
 
-/* liste che si possono “iniziare” dalla home */
-const STARTABLE = ['build','closed','prejump','between','endday','maint'];
+/* percorso principale (come la lista di Aldo) + checklist secondarie */
+const STEPS = [
+  {id:'build',   step:'STEP 1',       when:'Il giorno prima'},
+  {id:'closed',  step:'STEP 2',       when:'Il giorno dell’immersione'},
+  {id:'prejump', step:'CHECK FINALE', when:'Prima di entrare in acqua'},
+];
+const OTHERS = ['between','endday','maint'];
+let othersOpen = false;
 
 /* ================= STATO ================= */
 
@@ -833,21 +858,23 @@ function renderHome(){
   hello.innerHTML='<span class="dot" style="background:'+u.color+'"></span>Ciao '+escapeHtml(u.name)+' 👋';
   frag.appendChild(hello);
 
-  const bNew=document.createElement('button'); bNew.className='homebtn primary';
-  bNew.innerHTML='<span class="ico">🆕</span><span>Nuova checklist<span class="sub2">azzera e inizia da capo una checklist</span></span>';
-  frag.appendChild(bNew);
-
-  const picker=document.createElement('div'); picker.className='picker';
-  STARTABLE.forEach(id=>{
-    const cl=CHECKLISTS.find(c=>c.id===id);
+  /* percorso principale: step 1 / step 2 / check finale */
+  STEPS.forEach(st=>{
+    const cl=CHECKLISTS.find(c=>c.id===st.id);
     const c=counts(cl);
-    const b=document.createElement('button');
-    b.innerHTML='<span>'+cl.tab+'</span><span class="pct">'+(c.done? c.done+'/'+c.tot:'')+'</span>';
-    b.onclick=()=>startNew(id);
-    picker.appendChild(b);
+    const done=c.tot>0 && c.done===c.tot;
+    const card=document.createElement('div'); card.className='stepcard'+(done?' done':'');
+    card.innerHTML=
+      '<div class="stephead"><span class="stepbadge">'+escapeHtml(st.step)+'</span><span class="stepwhen">'+escapeHtml(st.when)+'</span></div>'+
+      '<div class="steprow"><span class="steptitle">'+cl.tab+'</span>'+
+      '<span class="mini"><i style="width:'+(c.tot?100*c.done/c.tot:0)+'%"></i></span>'+
+      '<span class="nums">'+(done?'✔ '+c.tot+'/'+c.tot:(c.done? c.done+'/'+c.tot:'—'))+'</span></div>';
+    card.onclick=()=>goTab(st.id);
+    const rst=document.createElement('button'); rst.className='steprst'; rst.textContent='↺'; rst.title='Nuova (azzera e ricomincia)';
+    rst.onclick=e=>{ e.stopPropagation(); startNew(st.id); };
+    card.appendChild(rst);
+    frag.appendChild(card);
   });
-  frag.appendChild(picker);
-  bNew.onclick=()=>picker.classList.toggle('show');
 
   const bLog=document.createElement('button'); bLog.className='homebtn';
   const nLog=state.log.length;
@@ -855,19 +882,18 @@ function renderHome(){
   bLog.onclick=()=>goTab('log');
   frag.appendChild(bLog);
 
-  /* checklist in corso */
-  const inCorso=CHECKLISTS.filter(cl=>{
-    const c=counts(cl);
-    return c && c.done>0 && c.done<c.tot;
-  });
-  if(inCorso.length){
-    const s=document.createElement('div'); s.className='sect'; s.textContent='In corso';
-    frag.appendChild(s);
-    inCorso.forEach(cl=>{
+  /* checklist secondarie */
+  const at=document.createElement('button'); at.className='alttoggle';
+  at.textContent=(othersOpen?'▾':'▸')+' Altre checklist (se servono)';
+  at.onclick=()=>{ othersOpen=!othersOpen; render(); };
+  frag.appendChild(at);
+  if(othersOpen){
+    OTHERS.forEach(id=>{
+      const cl=CHECKLISTS.find(c=>c.id===id);
       const c=counts(cl);
-      const r=document.createElement('button'); r.className='progrow';
-      r.innerHTML='<span>'+cl.tab+'</span><span class="mini"><i style="width:'+(100*c.done/c.tot)+'%"></i></span><span class="nums">'+c.done+'/'+c.tot+'</span>';
-      r.onclick=()=>goTab(cl.id);
+      const r=document.createElement('button'); r.className='progrow alt';
+      r.innerHTML='<span>'+cl.tab+'</span><span class="mini"><i style="width:'+(c.tot?100*c.done/c.tot:0)+'%"></i></span><span class="nums">'+(c.done? c.done+'/'+c.tot:'—')+'</span>';
+      r.onclick=()=>goTab(id);
       frag.appendChild(r);
     });
   }
