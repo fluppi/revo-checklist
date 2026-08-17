@@ -117,6 +117,20 @@
     width:64px; background:var(--bg); border:1px solid var(--line); border-radius:7px;
     color:var(--txt); font-size:15px; padding:6px; text-align:center;
   }
+  .calcbox{
+    margin-top:10px; background:var(--card2); border:1px solid var(--line); border-radius:10px;
+    padding:10px 12px; cursor:default;
+  }
+  .calcbox .ctit{font-size:12.5px; font-weight:700; color:var(--green); margin-bottom:8px;}
+  .calcbox .crow{display:flex; gap:10px; flex-wrap:wrap;}
+  .calcbox .f{display:flex; align-items:center; gap:5px; font-size:12.5px; color:var(--dim);}
+  .calcbox input{
+    width:64px; background:var(--bg); border:1px solid var(--line); border-radius:7px;
+    color:var(--txt); font-size:15px; padding:6px; text-align:center;
+  }
+  .calcbox .cres{margin-top:8px; font-size:14px; display:none;}
+  .calcbox .cres b{color:var(--green); font-size:16px;}
+  .calcbox .cwarn{margin-top:8px; font-size:12px; color:var(--yellow);}
   .timerbtn{
     margin-top:8px; background:var(--card2); border:1px solid var(--green-dark); color:var(--green);
     border-radius:8px; padding:7px 14px; font-size:14px; font-weight:600; cursor:pointer;
@@ -318,10 +332,10 @@ const CHECKLISTS = [
     {t:'Installare entrambe le bombole: controllare il fissaggio'},
     {t:'Avvitare i primi stadi sulle bombole'},
     {t:'Controllare i millivolt in aria', fields:[{k:'mv1',label:'sens. 1'},{k:'mv2',label:'sens. 2'},{k:'mv3',label:'sens. 3'},{k:'mv4',label:'sens. 4'},{k:'mv5',label:'sens. 5'}]},
-    {t:'Controllare la batteria esterna: far funzionare il solenoide 10 sec.', sub:'V > 6,5 V!'},
+    {t:'Controllare la batteria esterna: far funzionare il solenoide 10 sec.', sub:'V > 6,5 V! Per far sparare il solenoide: imposta il set point a 0,7, aspetta 15–20 sec e rimettilo a 0,19 (la voce set point è dopo il Bluetooth nel menu del Petrel).'},
     {t:'Controllare la batteria interna attraverso la rappresentazione grafica'},
     {t:'Controllare la vita dei sensori: il sensore più giovane deve essere < 7 mesi!', sub:'Se non è presente, sostituire quello che ritenete più debole e segnare la data.'},
-    {t:'Controllare la vita residua dei filtri', sub:'Se la vita del filtro è terminata: spostare il filtro di inspirazione (inferiore) nel canister superiore, sostituire l’assorbente del filtro superiore e metterlo nel canister inferiore.'},
+    {t:'Controllare la vita residua dei filtri', sub:'Se la vita del filtro è terminata: spostare il filtro di inspirazione (inferiore) nel canister superiore, sostituire l’assorbente del filtro superiore e metterlo nel canister inferiore.', calc:true},
     {t:'Prima di inserire i filtri, inserire i panni sul fondo dei due contropolmoni'},
     {t:'Se i filtri non scendono completamente nei rispettivi canister', sub:'Controllare la posizione della griglia sensori e della griglia porta-solenoide con il relativo giro di cavi e tubi.'},
     {t:'Posizionare il TOP MARKER sul filtro superiore', sub:'RMS con le frecce verso l’alto.'},
@@ -337,7 +351,7 @@ const CHECKLISTS = [
   items:[
     {group:'Ossigeno'},
     {t:'Aprire O₂ \\ aggiungere O₂ manualmente \\ la pressione è stabile?'},
-    {t:'Accendere Shearwater: mettere set point 0,7 \\ il solenoide funziona?'},
+    {t:'Accendere Shearwater: mettere set point 0,7 \\ il solenoide funziona?', sub:'La voce set point è dopo il Bluetooth nel menu del Petrel.'},
     {t:'Riportare il set point Shearwater a 0,19'},
     {t:'Effettuare un lavaggio con O₂ × 3 volte', sub:'Svuotare il circuito e chiudere il DSV, riempirlo con O₂ fino a far partire la valvola di sovrapressione. Alla terza volta riapri un po’ il DSV per evitare la sovrapressione dovuta al CMF.'},
     {t:'Calibrare Shearwater Petrel'},
@@ -358,7 +372,7 @@ const CHECKLISTS = [
     {t:'Controllare le connessioni delle fruste e sistemarle correttamente sotto gli elastici \\ i moschettoni sono efficienti?'},
     {t:'Chiudere il bail-out \\ controllare la membrana del secondo stadio: non dovrebbe essere possibile inspirare'},
     {t:'Programmare nei computer i gas CC\\BO, i gradient factor e i dati personali'},
-    {t:'Durata del filtro sufficiente per la prossima immersione?', sub:'Se presente RMS, controllare su Shearwater.'},
+    {t:'Durata del filtro sufficiente per la prossima immersione?', sub:'Se presente RMS, controllare su Shearwater.', calc:true},
     {t:'Aprire rapidamente il boccaglio per verificare il test negativo', sub:'Deve sentirsi il rumore della depressione.'},
     {t:'Spegnere Shearwater!'},
     {t:'Controllare l’imbrago, le cinghie… FINE!'},
@@ -626,6 +640,8 @@ function renderList(cl){
       body.appendChild(tb);
     }
 
+    if(it.calc) body.appendChild(buildScrubCalc());
+
     row.appendChild(body);
     if(!cl.info){
       row.onclick=()=>{
@@ -641,6 +657,45 @@ function renderList(cl){
   });
 
   return frag;
+}
+
+/* calcolo calce residua: T = minuti residui × (20 / profondità prevista), riferimento 20 m */
+function buildScrubCalc(){
+  const box=document.createElement('div'); box.className='calcbox';
+  box.onclick=e=>e.stopPropagation();
+  const tit=document.createElement('div'); tit.className='ctit'; tit.textContent='🧮 Calcolo calce (riferimento 20 m)';
+  box.appendChild(tit);
+  const row=document.createElement('div'); row.className='crow';
+  const mkIn=(key,ph,lbl)=>{
+    const lab=document.createElement('label'); lab.className='f';
+    const inp=document.createElement('input');
+    inp.type='text'; inp.inputMode='decimal'; inp.placeholder=ph;
+    inp.value=cur().values[key]||'';
+    inp.oninput=()=>{ cur().values[key]=inp.value; save(); upd(); };
+    lab.appendChild(inp);
+    const sp=document.createElement('span'); sp.textContent=lbl; lab.appendChild(sp);
+    row.appendChild(lab);
+    return inp;
+  };
+  const iMin=mkIn('calc|min','—','calce residua (min)');
+  const iDep=mkIn('calc|depth','—','profondità (m)');
+  box.appendChild(row);
+  const res=document.createElement('div'); res.className='cres';
+  box.appendChild(res);
+  const warn=document.createElement('div'); warn.className='cwarn';
+  warn.textContent='⚠ Temperature: se inferiori ai 15 °C rispetto all’immersione precedente, tienilo in considerazione con il calcolo RMS.';
+  box.appendChild(warn);
+  function upd(){
+    const m=parseFloat(String(iMin.value).replace(',','.'));
+    const d=parseFloat(String(iDep.value).replace(',','.'));
+    if(isFinite(m) && m>0 && isFinite(d) && d>0){
+      const t=Math.floor(m*(20/d));
+      res.innerHTML='→ durata a '+escapeHtml(iDep.value)+' m: <b>≈ '+t+' min</b>';
+      res.style.display='block';
+    } else res.style.display='none';
+  }
+  upd();
+  return box;
 }
 
 function updateProgress(cl){
