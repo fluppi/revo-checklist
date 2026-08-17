@@ -12,13 +12,13 @@ All'apertura l'app chiede **chi si immerge** (François o Orietta): spunte, valo
 modalità mCCR/hCCR e contatore scrubber restano separati per utente.
 
 Ogni checklist completata al 100% viene registrata automaticamente nel **📒 Log**
-(utente, data e ora, checklist, valori inseriti — analisi gas, millivolt, batterie…).
+(utente, data e ora, checklist, valori inseriti — analisi gas, millivolt…).
 Il log è condiviso, filtrabile per utente ed esportabile in CSV.
 
 ## Contenuto
 
 - 🏠 **Home** — nuova checklist, checklist in corso, ultime registrazioni
-- 🔧 **Montaggio** (checklist di Aldo) — con campi per analisi gas, millivolt dei 5 sensori e batterie
+- 🔧 **Montaggio** (checklist di Aldo) — con campi per analisi gas e millivolt dei 5 sensori
 - 🔒 **Closed check** (checklist di Aldo, 2025/11) — con timer integrato per il test negativo (2 min)
 - 🤿 **Pre-jump check** — con timer per il pre-breathe (5 min)
 - 🌊 **In acqua** — promemoria (sempre in verde, volume minimo, cell check a 6 m…)
