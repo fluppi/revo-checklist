@@ -14,7 +14,7 @@
   :root{
     --bg:#0d1b12; --card:#14241a; --card2:#0f1e15; --line:#22382b;
     --txt:#e8f2ea; --dim:#93ab99; --green:#00b551; --green-dark:#00843D;
-    --yellow:#FFC72C; --red:#ff5252; --blue:#4dabf7;
+    --yellow:#FFC72C; --red:#ff5252; --blue:#4dabf7; --pink:#f783ac;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0; padding:0;}
@@ -32,6 +32,11 @@
   .topbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
   h1{font-size:20px; margin:0; letter-spacing:.5px; display:flex; align-items:center; gap:8px;}
   h1 .o2{color:var(--green);}
+  .userchip{
+    display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:20px;
+    background:var(--card); color:var(--txt); padding:5px 12px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .userchip .dot{width:9px; height:9px; border-radius:50%;}
   .mode-toggle{
     margin-left:auto; display:flex; border:1px solid var(--line); border-radius:20px; overflow:hidden;
     font-size:12px;
@@ -151,6 +156,7 @@
     position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
     background:var(--green-dark); color:#fff; border-radius:10px; padding:10px 18px;
     font-size:14px; z-index:50; opacity:0; transition:opacity .3s; pointer-events:none;
+    max-width:88vw; text-align:center;
   }
   .toast.show{opacity:1;}
   .complete-banner{
@@ -158,6 +164,92 @@
     text-align:center; font-weight:700; margin-bottom:12px; display:none;
   }
   .complete-banner.show{display:block;}
+  /* ===== schermata selezione utente ===== */
+  .userscreen{
+    position:fixed; inset:0; z-index:100; background:var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px; padding:24px; text-align:center;
+  }
+  .userscreen.hidden{display:none;}
+  .userscreen .biglogo{font-size:52px; line-height:1;}
+  .userscreen h2{margin:4px 0 2px 0; font-size:22px;}
+  .userscreen p{margin:0 0 14px 0; color:var(--dim); font-size:14px;}
+  .userbtn{
+    width:100%; max-width:320px; display:flex; align-items:center; gap:14px;
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    color:var(--txt); font-size:19px; font-weight:700; padding:18px 22px; cursor:pointer;
+    transition:transform .1s;
+  }
+  .userbtn:active{transform:scale(.98);}
+  .userbtn .avatar{
+    width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:800; color:#fff; flex:0 0 44px;
+  }
+  .userbtn .last{margin-left:auto; font-size:11px; font-weight:600; color:var(--dim);}
+  .userscreen .note{font-size:12px; color:var(--dim); max-width:320px;}
+  /* ===== home ===== */
+  .hello{font-size:21px; font-weight:700; margin:8px 0 14px 0; display:flex; align-items:center; gap:10px;}
+  .hello .dot{width:12px; height:12px; border-radius:50%;}
+  .homebtn{
+    width:100%; display:flex; align-items:center; gap:14px; text-align:left;
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    color:var(--txt); padding:16px; font-size:16.5px; font-weight:700; cursor:pointer; margin-bottom:10px;
+  }
+  .homebtn.primary{background:var(--green-dark); border-color:var(--green-dark); color:#fff;}
+  .homebtn .ico{font-size:24px;}
+  .homebtn .sub2{display:block; font-size:12.5px; font-weight:400; opacity:.75; margin-top:2px;}
+  .picker{margin:4px 0 14px 0; display:none;}
+  .picker.show{display:block;}
+  .picker button{
+    width:100%; display:flex; align-items:center; gap:10px;
+    background:var(--card2); border:1px solid var(--line); border-radius:12px;
+    color:var(--txt); padding:13px 14px; font-size:15px; font-weight:600; cursor:pointer; margin-bottom:6px;
+  }
+  .picker button .pct{margin-left:auto; font-size:12px; color:var(--dim); font-weight:600;}
+  .sect{
+    margin:20px 0 8px 0; font-size:12.5px; font-weight:700; letter-spacing:1.2px;
+    text-transform:uppercase; color:var(--green);
+    display:flex; align-items:center; gap:8px;
+  }
+  .sect::after{content:""; flex:1; height:1px; background:var(--line);}
+  .progrow{
+    width:100%; display:flex; align-items:center; gap:12px; text-align:left;
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    color:var(--txt); padding:12px 14px; font-size:14.5px; font-weight:600; cursor:pointer; margin-bottom:8px;
+  }
+  .progrow .mini{flex:1; height:5px; background:var(--card2); border-radius:3px; overflow:hidden; min-width:40px;}
+  .progrow .mini i{display:block; height:100%; background:var(--green);}
+  .progrow .nums{font-size:12.5px; color:var(--dim); font-weight:600; white-space:nowrap;}
+  /* ===== log ===== */
+  .filters{display:flex; gap:6px; margin:0 0 12px 0; flex-wrap:wrap;}
+  .filters button{
+    background:var(--card); border:1px solid var(--line); color:var(--dim);
+    border-radius:16px; padding:6px 13px; font-size:13px; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+  }
+  .filters button.on{background:var(--green-dark); border-color:var(--green-dark); color:#fff;}
+  .filters button .dot{width:8px; height:8px; border-radius:50%;}
+  .logentry{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:12px 14px; margin-bottom:8px; font-size:14px;
+  }
+  .logentry .top{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .logentry .when{color:var(--dim); font-size:12.5px; white-space:nowrap;}
+  .logentry .who{
+    display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:13px;
+  }
+  .logentry .who .dot{width:8px; height:8px; border-radius:50%;}
+  .logentry .what{font-weight:600; flex:1; min-width:120px;}
+  .logentry .del{
+    background:none; border:none; color:var(--dim); font-size:15px; cursor:pointer; padding:2px 6px;
+  }
+  .logentry .vals{margin-top:8px; display:flex; gap:5px; flex-wrap:wrap;}
+  .logentry .vals span{
+    background:var(--card2); border:1px solid var(--line); border-radius:6px;
+    padding:2px 7px; font-size:12px; color:var(--dim);
+  }
+  .logentry .vals span b{color:var(--txt); font-weight:600;}
+  .empty{color:var(--dim); text-align:center; padding:30px 10px; font-size:14px;}
 </style>
 </head>
 <body>
@@ -165,6 +257,7 @@
 <header>
   <div class="topbar">
     <h1>rEvo <span class="o2">✓</span> Checklist</h1>
+    <button class="userchip" id="userChip" title="Cambia utente"><span class="dot"></span><span class="nm"></span> ⇄</button>
     <div class="mode-toggle" id="modeToggle">
       <button data-mode="mccr">mCCR</button>
       <button data-mode="hccr">hCCR · Petrel 3 + NERD 2</button>
@@ -188,79 +281,87 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<div class="userscreen hidden" id="userScreen">
+  <div class="biglogo">rEvo <span style="color:var(--green)">✓</span></div>
+  <h2>Chi si immerge?</h2>
+  <p>Seleziona l’utente: checklist e valori restano separati, il log è condiviso.</p>
+  <div id="userBtns" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:10px;"></div>
+  <div class="note" id="userNote"></div>
+</div>
+
 <script>
 "use strict";
 
-/* ================= DATI (dal Manuale rEvo III CE v05 e checklist ufficiale v0.4) ================= */
+/* ================= UTENTI ================= */
+
+const USERS = [
+  {id:'francois', name:'François', color:'var(--blue)'},
+  {id:'orietta',  name:'Orietta',  color:'var(--pink)'},
+];
+function userOf(id){ return USERS.find(u=>u.id===id); }
+
+/* ================= DATI =================
+   Montaggio + Closed check: checklist italiana di Aldo
+   (Controllo di montaggio rEvo v0.4 + Closed check versione 2025/11).
+   Le altre schede: manuale rEvo III CE v05. */
 
 const CHECKLISTS = [
 {
-  id:'build', tab:'🔧 Montaggio', title:'Montaggio (build check)',
-  desc:'Checklist ufficiale rEvo v0.4 + manuale §4.1–4.2. Da fare con calma, prima di partire.',
+  id:'home', tab:'🏠 Home', title:'Home', custom:'home', items:[]
+},
+{
+  id:'build', tab:'🔧 Montaggio', title:'Controllo di montaggio',
+  desc:'Checklist italiana (Aldo) — rEvo v0.4. Da fare con calma, prima di partire.',
   items:[
-    {group:'Considerazioni preliminari'},
-    {t:'Tempo scrubber: minuti già usati + immersione pianificata ≤ 160 min?', sub:'Altrimenti ricarica entrambi gli scrubber con sorb fresco. Aggiorna il contatore in alto.'},
-    {t:'Batterie rEvodream OK?', sub:'Nessuna indicazione di batteria scarica nell’immersione precedente? Sostituiscile a casa, MAI al punto d’immersione (rischio umidità nell’alloggiamento).',
-     t2:'Batterie Petrel 3 e NERD 2 OK?', sub2:'Controlla le tensioni nei menu (interna > 3.30 V). Nessun avviso batteria nell’immersione precedente? Sostituiscile/ricaricale a casa, non al punto d’immersione.'},
-    {group:'Bombole e gas'},
-    {t:'Analizza il contenuto della bombola O₂', fields:[{k:'o2_pct',label:'%O₂'},{k:'o2_bar',label:'bar'}]},
-    {t:'Analizza il contenuto della bombola diluente', fields:[{k:'dil_o2',label:'%O₂'},{k:'dil_he',label:'%He'},{k:'dil_bar',label:'bar'}]},
-    {t:'Pressioni sufficienti per l’immersione pianificata?', sub:'Anche nello scenario peggiore.'},
-    {t:'Installa le bombole sull’unità', sub:'Verifica il corretto aggancio dei quick release.'},
-    {t:'Collega gli erogatori alle rubinetterie', sub:'Connessione primo stadio–rubinetto pulita: niente sporco o grasso non O₂-compatibile.'},
-    {group:'Celle ed elettronica'},
-    {t:'Controlla i millivolt delle celle in aria', fields:[{k:'mv1',label:'cella 1'},{k:'mv2',label:'cella 2'},{k:'mv3',label:'cella 3'}],
-     sub2:'Celle 1–3: lette dal controller (Petrel 3).'},
-    {t:'Millivolt celle 4–5 (monitor indipendente)', sub:'hCCR: minimo 4 celle. Le celle 4 (ed eventualmente 5) sono lette dal monitor indipendente (NERD 2).', fields:[{k:'mv4',label:'cella 4'},{k:'mv5',label:'cella 5'}], hccr:true},
-    {t:'Batteria esterna: fai sparare il solenoide 10 s', sub:'Tensione EXT > 6.5 V.', hccr:true},
-    {t:'Vita delle celle O₂: la più giovane ha meno di 7 mesi?', sub:'Altrimenti aggiungi/sostituisci una cella e scrivi la data sulla cella. Sostituisci sempre la più vecchia o quella che reagisce più lentamente. Solo celle R22D-rEvo / CR22D-rEvo.'},
-    {group:'Scrubber e polmoni'},
-    {t:'Assorbitore di umidità nel polmone di inspirazione', sub:'Arrotolato, SOTTO il tubo anti-collasso.'},
-    {t:'Griglia celle (e griglia solenoide) installate correttamente', sub:'Controlla il percorso dei cavi.', },
-    {t:'Scrubber nell’unità: TOP-marker sullo scrubber di espirazione (in alto)', sub:'rMS: frecce verso l’alto. Se hai fatto il cycling, il canestro fresco va in basso (inspirazione).'},
-    {t:'O-ring degli scrubber: pulisci le superfici di tenuta, ingrassa se serve', sub:'Solo grasso O₂-compatibile (es. Tribolube 71). Occhio a sabbia e sporco.'},
-    {t:'Chiudi il coperchio, avvita a mano', sub:'Non serrare eccessivamente.'},
-    {group:'Loop respiratorio'},
-    {t:'Stereo check delle valvole di non ritorno (a fungo)', sub:'Boccaglio aperto: blocca il lato espirazione (connettore rosso) e soffia → non deve uscire gas; blocca il lato inspirazione (nero) e aspira → non deve entrare gas. Boccaglio chiuso: soffia nel lato nero → niente gas dal boccaglio; aspira dal lato rosso → niente gas nel boccaglio.'},
-    {t:'Boccaglio e O-ring del loop: superfici pulite, ingrassa se serve'},
-    {t:'Installa il loop sul rebreather', sub:'Connettore rosso nella porta con il pulsante rosso: il flusso va in senso antiorario, da destra verso sinistra. Le connessioni marcate (scanalatura = espirazione) e i diametri diversi impediscono inversioni.'},
-    {t:'Avvolgi il cavo degli HUD 3–4 giri in senso orario attorno al corrugato',
-     t2:'Avvolgi il cavo del NERD 2 3–4 giri in senso orario attorno al corrugato'},
+    {t:'Analizzare il contenuto della bombola ossigeno', fields:[{k:'o2_pct',label:'%O₂',lg:'O₂ %O₂'},{k:'o2_bar',label:'bar',lg:'O₂ bar'}]},
+    {t:'Analizzare il contenuto della bombola diluente', fields:[{k:'dil_o2',label:'%O₂',lg:'dil %O₂'},{k:'dil_he',label:'%He',lg:'dil %He'},{k:'dil_bar',label:'bar',lg:'dil bar'}]},
+    {t:'Installare entrambe le bombole: controllare il fissaggio'},
+    {t:'Avvitare i primi stadi sulle bombole'},
+    {t:'Controllare i millivolt in aria', fields:[{k:'mv1',label:'sens. 1'},{k:'mv2',label:'sens. 2'},{k:'mv3',label:'sens. 3'},{k:'mv4',label:'sens. 4'},{k:'mv5',label:'sens. 5'}]},
+    {t:'Controllare la batteria esterna: far funzionare il solenoide 10 sec.', sub:'V > 6,5 V!', fields:[{k:'v_ext',label:'V est.'}]},
+    {t:'Controllare la batteria interna attraverso la rappresentazione grafica', fields:[{k:'v_int',label:'V int.'}]},
+    {t:'Controllare la vita dei sensori: il sensore più giovane deve essere < 7 mesi!', sub:'Se non è presente, sostituire quello che ritenete più debole e segnare la data.'},
+    {t:'Controllare la vita residua dei filtri', sub:'Se la vita del filtro è terminata: spostare il filtro di inspirazione (inferiore) nel canister superiore, sostituire l’assorbente del filtro superiore e metterlo nel canister inferiore.'},
+    {t:'Prima di inserire i filtri, inserire i panni sul fondo dei due contropolmoni'},
+    {t:'Se i filtri non scendono completamente nei rispettivi canister', sub:'Controllare la posizione della griglia sensori e della griglia porta-solenoide con il relativo giro di cavi e tubi.'},
+    {t:'Posizionare il TOP MARKER sul filtro superiore', sub:'RMS con le frecce verso l’alto.'},
+    {t:'Controllare gli O-ring degli scrubber', sub:'Pulire le sedi delle guarnizioni, ingrassare se necessario, chiudere il coperchio e serrare a mano la vite.'},
+    {t:'Controllare i tubi di respirazione, il suono delle valvole di non ritorno, il boccaglio e gli O-ring del loop', sub:'Pulire le superfici di innesto e ingrassare se necessario.'},
+    {t:'Installare il loop sul rebreather!'},
+    {t:'Avvolgere il cavo dell’HUD o del NERD attorno al tubo di respirazione'},
   ]
 },
 {
   id:'closed', tab:'🔒 Closed check', title:'Closed check',
-  desc:'Checklist ufficiale rEvo v0.4. A unità assemblata e chiusa, prima di andare in acqua.',
+  desc:'Checklist italiana (Aldo) — versione 2025/11. A unità assemblata e chiusa, prima di andare in acqua.',
   items:[
     {group:'Ossigeno'},
-    {t:'Apri l’O₂ LENTAMENTE / aggiungi O₂ manualmente / pressione?', sub:'Le rubinetterie O₂ si aprono sempre lentamente: rischio incendio per compressione adiabatica. Nessuna perdita tra primo stadio e rubinetto.'},
-    {t:'Accendi il Petrel 3: set-point alto → il solenoide spara?', hccr:true},
-    {t:'Imposta il set-point del Petrel 3 a 0.19', hccr:true},
-    {t:'Flush O₂ completo ×3', sub:'DSV in bocca, svuota i polmoni espirando dal naso, inietta O₂ fino a leggera sovrappressione, lascia sfiatare dagli angoli della bocca. Ripeti 3 volte, poi chiudi il DSV e riaprilo a fessura: il piccolo flusso in uscita conferma che l’orifice eroga e che il loop resta a 1 ata.'},
-    {t:'rEvodream accesi: calibra', sub:'Calibrazione OK = lampeggio veloce del LED verde. Valori corretti in aria dopo: 0.20–0.22.',
-     t2:'NERD 2 acceso: calibra', sub2:'Con il loop al 100% di O₂ a 1 ata. Valori corretti in aria dopo la calibrazione: 0.20–0.22.'},
-    {t:'Calibra il Petrel 3', hccr:true},
-    {t:'Batterie: rEvodream OK?', sub:'> 1.25 V (o > 3.30 V a seconda della batteria); hCCR: EXT > 6.5 V. MAI immergersi con indicazione di batteria scarica.',
-     t2:'Batterie: Petrel 3 e NERD 2 OK? EXT > 6.5 V?', sub2:'Interna > 3.30 V. MAI immergersi con indicazione di batteria scarica.'},
-    {t:'Chiudi l’O₂: la pressione scende?', sub:'Il calo conferma che l’orifice sta erogando (CMF ~0.6 l/min).'},
-    {t:'Depressurizza la linea O₂'},
+    {t:'Aprire O₂ \\ aggiungere O₂ manualmente \\ la pressione è stabile?'},
+    {t:'Accendere Shearwater: mettere set point 0,7 \\ il solenoide funziona?'},
+    {t:'Riportare il set point Shearwater a 0,19'},
+    {t:'Effettuare un lavaggio con O₂ × 3 volte', sub:'Svuotare il circuito e chiudere il DSV, riempirlo con O₂ fino a far partire la valvola di sovrapressione. Alla terza volta riapri un po’ il DSV per evitare la sovrapressione dovuta al CMF.'},
+    {t:'Calibrare Shearwater Petrel'},
+    {t:'Calibrare rEvodream / NERD'},
+    {t:'Batterie rEvodream \\ Shearwater', sub:'Interna > 1,25 V \\ 3,30 V: verificare la rappresentazione grafica. L’esterna deve essere superiore a 6,5 V.'},
+    {t:'Chiudere O₂ \\ la pressione deve scendere di circa 10 bar in 10 secondi?'},
+    {t:'Svuotare il circuito O₂!'},
     {group:'Diluente'},
-    {t:'Apri il diluente / aspira: l’ADV interviene? / chiudi il loop'},
-    {t:'Aggiungi diluente manualmente / pressione?'},
-    {t:'OPV: test positivo (sovrappressione)', sub:'A boccaglio chiuso premi l’aggiunta manuale di diluente: il gas deve uscire SOLO dalla valvola di sovrappressione. Ascolta con attenzione eventuali perdite altrove.'},
-    {t:'Gonfia il GAV al massimo: resta gonfio?'},
-    {t:'Flush diluente: la PPO₂ segna 0.21–0.22?'},
-    {t:'Chiudi il diluente: la pressione resta?'},
-    {t:'Avvia il test negativo', sub:'Bombole chiuse, “vuota” il loop fino a contrarre i corrugati, chiudi il boccaglio. Attendi 2 minuti e riapri: deve esserci un ‘hiss’ chiaramente udibile, altrimenti cerca la perdita. MAI senza scrubber montati (i polmoni verrebbero risucchiati).', timer:120},
-    {group:'Bailout e finale'},
-    {t:'Apri il bailout: pressione? / respira dall’erogatore: la pressione tiene?', sub:'Miscela analizzata e corretta per l’immersione.'},
-    {t:'Controlla tutte le connessioni'},
-    {t:'Chiudi il bailout / verifica la valvola dell’erogatore inspirando'},
-    {t:'Gas programmati nel computer (CC/OC)', sub2:'Su Petrel 3 e NERD 2.'},
-    {t:'Tempo scrubber sufficiente per la prossima immersione?'},
-    {t:'Test negativo OK? (hiss alla riapertura)', sub:'hCCR: spegni lo Shearwater.', sub2:'Spegni il Petrel 3.'},
-    {t:'Controlla imbrago, cinghiolo inguinale, gag strap del boccaglio — FINE'},
-    {t:'Se NON ti immergi subito: chiudi le bombole e flusha il loop con aria', sub:'Con la bombola O₂ aperta l’orifice continua a erogare e la svuota in poche ore.'},
+    {t:'Aprire il diluente \\ far funzionare l’ADV inspirando dalla bocca ed espirando dal naso \\ chiudere il loop'},
+    {t:'Aggiungere diluente manualmente \\ la pressione resta stabile?'},
+    {t:'OPV? Far funzionare la valvola di sovrapressione', sub:'Inspirando dal naso ed espirando dalla bocca nel circuito.'},
+    {t:'Controllare il funzionamento del comando del GAV e le valvole di scarico'},
+    {t:'Con il boccaglio aperto, lavare con diluente fino a vedere sul computer una PPO₂ 0,21–0,22'},
+    {t:'Chiudere il diluente \\ la pressione deve restare stabile?'},
+    {t:'Test negativo (inizio)', sub:'Inspirare dalla bocca ed espirare dal naso fino a svuotare completamente il circuito, quindi chiudere il DSV.', timer:120},
+    {group:'Bail-out e finale'},
+    {t:'Nell’attesa aprire il bail-out: la pressione è sufficiente? \\ respirare dal secondo stadio: la pressione resta stabile?'},
+    {t:'Controllare le connessioni delle fruste e sistemarle correttamente sotto gli elastici \\ i moschettoni sono efficienti?'},
+    {t:'Chiudere il bail-out \\ controllare la membrana del secondo stadio: non dovrebbe essere possibile inspirare'},
+    {t:'Programmare nei computer i gas CC\\BO, i gradient factor e i dati personali'},
+    {t:'Durata del filtro sufficiente per la prossima immersione?', sub:'Se presente RMS, controllare su Shearwater.'},
+    {t:'Aprire rapidamente il boccaglio per verificare il test negativo', sub:'Deve sentirsi il rumore della depressione.'},
+    {t:'Spegnere Shearwater!'},
+    {t:'Controllare l’imbrago, le cinghie… FINE!'},
   ]
 },
 {
@@ -365,19 +466,55 @@ const CHECKLISTS = [
   ]
 },
 {
-  id:'info', tab:'ℹ️ Info', title:'Riferimenti', info:true, custom:true, items:[]
+  id:'log', tab:'📒 Log', title:'Log', custom:'log', items:[]
+},
+{
+  id:'info', tab:'ℹ️ Info', title:'Riferimenti', custom:'info', items:[]
 },
 ];
 
+/* liste che si possono “iniziare” dalla home */
+const STARTABLE = ['build','closed','prejump','between','endday','maint'];
+
 /* ================= STATO ================= */
 
-const LS_KEY = 'revoChecklist.v1';
-let state = { mode:'hccr', checks:{}, values:{}, scrub:'', dates:{} };
-try{ Object.assign(state, JSON.parse(localStorage.getItem(LS_KEY)||'{}')); }catch(e){}
-function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+const LS_KEY = 'revoChecklist.v2';
+const LS_KEY_V1 = 'revoChecklist.v1';
 
-let currentTab = location.hash ? location.hash.slice(1) : 'build';
-if(!CHECKLISTS.some(c=>c.id===currentTab)) currentTab='build';
+function blankUser(){ return {mode:'hccr', checks:{}, values:{}, dates:{}, scrub:'', logged:{}}; }
+let state = { user:null, users:{francois:blankUser(), orietta:blankUser()}, log:[] };
+
+try{
+  const raw = localStorage.getItem(LS_KEY);
+  if(raw){
+    const s = JSON.parse(raw);
+    if(s && typeof s==='object'){
+      state.user = s.user || null;
+      state.log = Array.isArray(s.log) ? s.log : [];
+      USERS.forEach(u=>{
+        state.users[u.id] = Object.assign(blankUser(), (s.users && s.users[u.id]) || {});
+      });
+    }
+  } else {
+    /* migrazione dalla v1: lo stato del vecchio dispositivo era di François */
+    const v1 = localStorage.getItem(LS_KEY_V1);
+    if(v1){
+      const old = JSON.parse(v1);
+      state.users.francois = Object.assign(blankUser(), {
+        mode:old.mode||'hccr', checks:old.checks||{}, values:old.values||{},
+        dates:old.dates||{}, scrub:old.scrub||''
+      });
+    }
+  }
+}catch(e){}
+if(state.user && !userOf(state.user)) state.user = null;
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function cur(){ return state.users[state.user] || state.users[USERS[0].id]; }
+
+let currentTab = location.hash ? location.hash.slice(1) : 'home';
+if(!CHECKLISTS.some(c=>c.id===currentTab)) currentTab='home';
+let logFilter = 'all';
 
 /* ================= RENDER ================= */
 
@@ -385,12 +522,12 @@ const $tabs = document.getElementById('tabs');
 const $main = document.getElementById('main');
 
 function visibleItems(cl){
-  return cl.items.filter(it => !it.group && (!it.hccr || state.mode==='hccr'));
+  return cl.items.filter(it => !it.group && (!it.hccr || cur().mode==='hccr'));
 }
 function counts(cl){
-  if(cl.info) return null;
+  if(cl.info || cl.custom) return null;
   const vis = visibleItems(cl);
-  const done = vis.filter((it,i)=> state.checks[keyOf(cl,it)] ).length;
+  const done = vis.filter(it => cur().checks[keyOf(cl,it)]).length;
   return {done, tot:vis.length};
 }
 function keyOf(cl,it){ return cl.id+'|'+it.t; }
@@ -402,10 +539,11 @@ function renderTabs(){
     const c=counts(cl);
     b.innerHTML = cl.tab + (c? ` <span class="cnt">${c.done}/${c.tot}</span>`:'');
     if(cl.id===currentTab) b.classList.add('on');
-    b.onclick=()=>{ currentTab=cl.id; location.hash=cl.id; render(); window.scrollTo(0,0); };
+    b.onclick=()=>{ goTab(cl.id); };
     $tabs.appendChild(b);
   });
 }
+function goTab(id){ currentTab=id; location.hash=id; render(); window.scrollTo(0,0); }
 
 function renderList(cl){
   const frag=document.createDocumentFragment();
@@ -414,7 +552,10 @@ function renderList(cl){
   const h2=document.createElement('h2'); h2.textContent=cl.title; head.appendChild(h2);
   if(!cl.info){
     const rb=document.createElement('button'); rb.className='reset-btn'; rb.textContent='↺ Azzera';
-    rb.onclick=()=>{ resetList(cl.id); };
+    rb.onclick=()=>{
+      if(!confirm('Azzero spunte e valori di questa checklist per '+userOf(state.user).name+'?')) return;
+      resetList(cl.id);
+    };
     head.appendChild(rb);
   }
   frag.appendChild(head);
@@ -431,7 +572,7 @@ function renderList(cl){
   }
   if(cl.desc){
     const d=document.createElement('p'); d.className='desc';
-    d.textContent=cl.desc + (state.dates[cl.id]? ' — azzerata: '+state.dates[cl.id]:'');
+    d.textContent=cl.desc + (cur().dates[cl.id]? ' — iniziata: '+cur().dates[cl.id]:'');
     d.style.marginTop='10px';
     frag.appendChild(d);
   }
@@ -441,11 +582,11 @@ function renderList(cl){
       const g=document.createElement('div'); g.className='group'; g.textContent=it.group;
       frag.appendChild(g); return;
     }
-    if(it.hccr && state.mode!=='hccr') return;
+    if(it.hccr && cur().mode!=='hccr') return;
 
     const key=keyOf(cl,it);
     const row=document.createElement('div');
-    row.className='item'+(state.checks[key]?' checked':'');
+    row.className='item'+(cur().checks[key]?' checked':'');
     if(cl.info) row.style.cursor='default';
 
     const box=document.createElement('div'); box.className='box'; box.textContent='✓';
@@ -453,7 +594,7 @@ function renderList(cl){
     row.appendChild(box);
 
     const body=document.createElement('div'); body.className='body';
-    const hc = state.mode==='hccr';
+    const hc = cur().mode==='hccr';
     const txt = (hc && it.t2) ? it.t2 : it.t;
     const sub = (hc && it.sub2) ? it.sub2 : it.sub;
     const t=document.createElement('div'); t.className='t';
@@ -468,9 +609,9 @@ function renderList(cl){
         const lab=document.createElement('label'); lab.className='f';
         const inp=document.createElement('input');
         inp.type='text'; inp.inputMode='decimal'; inp.placeholder='—';
-        inp.value=state.values[fk]||'';
+        inp.value=cur().values[fk]||'';
         inp.onclick=e=>e.stopPropagation();
-        inp.oninput=()=>{ state.values[fk]=inp.value; save(); };
+        inp.oninput=()=>{ cur().values[fk]=inp.value; save(); };
         lab.appendChild(inp);
         const sp=document.createElement('span'); sp.textContent=f.label; lab.appendChild(sp);
         fw.appendChild(lab);
@@ -488,9 +629,11 @@ function renderList(cl){
     row.appendChild(body);
     if(!cl.info){
       row.onclick=()=>{
-        state.checks[key]=!state.checks[key]; save();
-        row.classList.toggle('checked', !!state.checks[key]);
+        cur().checks[key]=!cur().checks[key];
+        row.classList.toggle('checked', !!cur().checks[key]);
         if(navigator.vibrate) navigator.vibrate(10);
+        maybeLogCompletion(cl);
+        save();
         renderTabs(); updateProgress(cl);
       };
     }
@@ -507,6 +650,200 @@ function updateProgress(cl){
   const banner=$main.querySelector('.complete-banner');
   if(banner) banner.classList.toggle('show', c.tot>0 && c.done===c.tot);
 }
+
+/* ================= LOG ================= */
+
+function snapshotValues(cl){
+  const out={};
+  cl.items.forEach(it=>{
+    (it.fields||[]).forEach(f=>{
+      const v=cur().values[cl.id+'|'+f.k];
+      if(v!=null && String(v).trim()!=='') out[f.lg||f.label]=String(v).trim();
+    });
+  });
+  return out;
+}
+
+function maybeLogCompletion(cl){
+  const c=counts(cl);
+  if(!c || c.tot===0 || c.done!==c.tot) return;
+  if(cur().logged[cl.id]) return;
+  cur().logged[cl.id]=true;
+  state.log.unshift({
+    id:Date.now(),
+    user:state.user,
+    list:cl.id,
+    title:cl.title,
+    tab:cl.tab,
+    ts:new Date().toISOString(),
+    tot:c.tot,
+    mode:cur().mode,
+    scrub:cur().scrub||'',
+    values:snapshotValues(cl),
+  });
+  save();
+  toast('✔ '+cl.title+' registrata nel log di '+userOf(state.user).name);
+}
+
+function fmtTs(iso){
+  const d=new Date(iso);
+  return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+
+         d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+}
+
+function renderLog(){
+  const frag=document.createDocumentFragment();
+  const head=document.createElement('div'); head.className='listhead';
+  const h2=document.createElement('h2'); h2.textContent='📒 Log checklist'; head.appendChild(h2);
+  const exp=document.createElement('button'); exp.className='reset-btn'; exp.textContent='⬇ Esporta CSV';
+  exp.onclick=exportCsv;
+  head.appendChild(exp);
+  frag.appendChild(head);
+
+  const filt=document.createElement('div'); filt.className='filters';
+  const opts=[{id:'all',name:'Tutti'}].concat(USERS);
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    if(o.color) b.innerHTML='<span class="dot" style="background:'+o.color+'"></span>'+o.name;
+    else b.textContent=o.name;
+    if(logFilter===o.id) b.classList.add('on');
+    b.onclick=()=>{ logFilter=o.id; render(); };
+    filt.appendChild(b);
+  });
+  frag.appendChild(filt);
+
+  const entries=state.log.filter(e=> logFilter==='all' || e.user===logFilter);
+  if(!entries.length){
+    const e=document.createElement('div'); e.className='empty';
+    e.textContent='Nessuna checklist registrata'+(logFilter!=='all'?' per '+userOf(logFilter).name:'')+'. Le checklist completate al 100% finiscono qui automaticamente.';
+    frag.appendChild(e);
+    return frag;
+  }
+
+  entries.forEach(en=>{
+    const u=userOf(en.user)||{name:en.user,color:'var(--dim)'};
+    const div=document.createElement('div'); div.className='logentry';
+    const top=document.createElement('div'); top.className='top';
+    top.innerHTML=
+      '<span class="who"><span class="dot" style="background:'+u.color+'"></span>'+escapeHtml(u.name)+'</span>'+
+      '<span class="what">'+escapeHtml(en.tab||en.title)+'</span>'+
+      '<span class="when">'+fmtTs(en.ts)+' · '+en.tot+'/'+en.tot+'</span>';
+    const del=document.createElement('button'); del.className='del'; del.textContent='✕'; del.title='Elimina voce';
+    del.onclick=()=>{
+      if(!confirm('Elimino questa voce dal log?')) return;
+      state.log=state.log.filter(x=>x.id!==en.id); save(); render();
+    };
+    top.appendChild(del);
+    div.appendChild(top);
+    const keys=Object.keys(en.values||{});
+    if(keys.length || en.scrub){
+      const vals=document.createElement('div'); vals.className='vals';
+      keys.forEach(k=>{
+        const s=document.createElement('span'); s.innerHTML=escapeHtml(k)+' <b>'+escapeHtml(en.values[k])+'</b>';
+        vals.appendChild(s);
+      });
+      if(en.scrub){
+        const s=document.createElement('span'); s.innerHTML='scrubber <b>'+escapeHtml(String(en.scrub))+'′</b>';
+        vals.appendChild(s);
+      }
+      div.appendChild(vals);
+    }
+    frag.appendChild(div);
+  });
+  return frag;
+}
+
+function exportCsv(){
+  if(!state.log.length){ toast('Il log è vuoto'); return; }
+  const rows=[['Data','Utente','Checklist','Voci','Modalità','Scrubber (min)','Valori']];
+  state.log.slice().reverse().forEach(en=>{
+    const u=userOf(en.user)||{name:en.user};
+    const vals=Object.entries(en.values||{}).map(([k,v])=>k+'='+v).join(' | ');
+    rows.push([fmtTs(en.ts), u.name, en.title, en.tot+'/'+en.tot, en.mode||'', en.scrub||'', vals]);
+  });
+  const csv='﻿'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='revo-log.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ================= HOME ================= */
+
+function renderHome(){
+  const frag=document.createDocumentFragment();
+  const u=userOf(state.user);
+
+  const hello=document.createElement('div'); hello.className='hello';
+  hello.innerHTML='<span class="dot" style="background:'+u.color+'"></span>Ciao '+escapeHtml(u.name)+' 👋';
+  frag.appendChild(hello);
+
+  const bNew=document.createElement('button'); bNew.className='homebtn primary';
+  bNew.innerHTML='<span class="ico">🆕</span><span>Nuova checklist<span class="sub2">azzera e inizia da capo una checklist</span></span>';
+  frag.appendChild(bNew);
+
+  const picker=document.createElement('div'); picker.className='picker';
+  STARTABLE.forEach(id=>{
+    const cl=CHECKLISTS.find(c=>c.id===id);
+    const c=counts(cl);
+    const b=document.createElement('button');
+    b.innerHTML='<span>'+cl.tab+'</span><span class="pct">'+(c.done? c.done+'/'+c.tot:'')+'</span>';
+    b.onclick=()=>startNew(id);
+    picker.appendChild(b);
+  });
+  frag.appendChild(picker);
+  bNew.onclick=()=>picker.classList.toggle('show');
+
+  const bLog=document.createElement('button'); bLog.className='homebtn';
+  const nLog=state.log.length;
+  bLog.innerHTML='<span class="ico">📒</span><span>Log checklist<span class="sub2">'+(nLog? nLog+' registrazioni':'ancora vuoto')+'</span></span>';
+  bLog.onclick=()=>goTab('log');
+  frag.appendChild(bLog);
+
+  /* checklist in corso */
+  const inCorso=CHECKLISTS.filter(cl=>{
+    const c=counts(cl);
+    return c && c.done>0 && c.done<c.tot;
+  });
+  if(inCorso.length){
+    const s=document.createElement('div'); s.className='sect'; s.textContent='In corso';
+    frag.appendChild(s);
+    inCorso.forEach(cl=>{
+      const c=counts(cl);
+      const r=document.createElement('button'); r.className='progrow';
+      r.innerHTML='<span>'+cl.tab+'</span><span class="mini"><i style="width:'+(100*c.done/c.tot)+'%"></i></span><span class="nums">'+c.done+'/'+c.tot+'</span>';
+      r.onclick=()=>goTab(cl.id);
+      frag.appendChild(r);
+    });
+  }
+
+  /* ultime dal log */
+  if(state.log.length){
+    const s=document.createElement('div'); s.className='sect'; s.textContent='Ultime registrazioni';
+    frag.appendChild(s);
+    state.log.slice(0,3).forEach(en=>{
+      const eu=userOf(en.user)||{name:en.user,color:'var(--dim)'};
+      const r=document.createElement('button'); r.className='progrow';
+      r.innerHTML='<span class="dot" style="width:9px;height:9px;border-radius:50%;background:'+eu.color+'"></span>'+
+        '<span style="flex:1; text-align:left;">'+escapeHtml(en.tab||en.title)+'</span>'+
+        '<span class="nums">'+escapeHtml(eu.name)+' · '+fmtTs(en.ts)+'</span>';
+      r.onclick=()=>goTab('log');
+      frag.appendChild(r);
+    });
+  }
+  return frag;
+}
+
+function startNew(id){
+  const cl=CHECKLISTS.find(c=>c.id===id);
+  const c=counts(cl);
+  if(c && c.done>0 && !confirm(cl.title+': azzero i progressi attuali ('+c.done+'/'+c.tot+') di '+userOf(state.user).name+' e inizio da capo?')) return;
+  resetList(id, true);
+  goTab(id);
+  toast(cl.title+' — si parte!');
+}
+
+/* ================= INFO ================= */
 
 function renderInfo(){
   const frag=document.createDocumentFragment();
@@ -584,59 +921,106 @@ function renderInfo(){
   <div class="card">
     <h3>Fonti</h3>
     <ul>
+      <li><b>Checklist italiana di Aldo</b> — Controllo di montaggio (rEvo v0.4) e Closed check versione 2025/11.</li>
       <li><a href="http://www.revo-rebreathers.com/wp-content/uploads/2016/02/Manual_rEvo_III_CE_2014_v05_ENG.pdf">Manuale rEvo III CE 2014 v0.5 (EN)</a></li>
       <li><a href="http://www.revo-rebreathers.com/wp-content/uploads/2016/02/rEvo_checklist_v04_031013.pdf">Checklist ufficiale rEvo v0.4 (EN)</a></li>
       <li><a href="https://www.revo-rebreathers.com/revo-downloads/">rEvo Rebreathers — Downloads</a> (controlla sempre l’ultima versione)</li>
     </ul>
-    I dati dell’app restano solo su questo dispositivo (localStorage).
+    I dati dell’app (checklist, valori e log di François e Orietta) restano solo su questo dispositivo (localStorage).
   </div>`;
   frag.appendChild(wrap);
   return frag;
 }
 
+/* ================= RENDER PRINCIPALE ================= */
+
 function render(){
+  renderUserChip();
+  renderMode(); renderScrub();
   renderTabs();
   $main.innerHTML='';
+  if(!userOf(state.user)) return; /* nessun utente selezionato: resta la schermata di scelta */
   const cl=CHECKLISTS.find(c=>c.id===currentTab);
-  $main.appendChild(cl.custom? renderInfo() : renderList(cl));
+  if(cl.custom==='home') $main.appendChild(renderHome());
+  else if(cl.custom==='log') $main.appendChild(renderLog());
+  else if(cl.custom==='info') $main.appendChild(renderInfo());
+  else $main.appendChild(renderList(cl));
 }
+
+/* ================= SELEZIONE UTENTE ================= */
+
+const $userScreen=document.getElementById('userScreen');
+const $userBtns=document.getElementById('userBtns');
+
+function showUserScreen(){
+  $userBtns.innerHTML='';
+  USERS.forEach(u=>{
+    const b=document.createElement('button'); b.className='userbtn';
+    b.innerHTML='<span class="avatar" style="background:'+u.color+'">'+u.name[0]+'</span>'+escapeHtml(u.name)+
+      (state.user===u.id?'<span class="last">ultimo utente</span>':'');
+    b.onclick=()=>{
+      state.user=u.id; save();
+      $userScreen.classList.add('hidden');
+      currentTab='home'; location.hash='home';
+      render(); window.scrollTo(0,0);
+    };
+    $userBtns.appendChild(b);
+  });
+  $userScreen.classList.remove('hidden');
+}
+
+function renderUserChip(){
+  const chip=document.getElementById('userChip');
+  const u=userOf(state.user);
+  if(!u){ chip.style.display='none'; return; }
+  chip.style.display='flex';
+  chip.querySelector('.dot').style.background=u.color;
+  chip.querySelector('.nm').textContent=u.name;
+}
+document.getElementById('userChip').onclick=showUserScreen;
 
 /* ================= AZIONI ================= */
 
 function resetList(id, silent){
   const cl=CHECKLISTS.find(c=>c.id===id);
-  cl.items.forEach(it=>{ if(!it.group) delete state.checks[keyOf(cl,it)]; });
-  state.dates[id]=new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  cl.items.forEach(it=>{
+    if(it.group) return;
+    delete cur().checks[keyOf(cl,it)];
+    (it.fields||[]).forEach(f=>{ delete cur().values[cl.id+'|'+f.k]; });
+  });
+  delete cur().logged[id];
+  cur().dates[id]=new Date().toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
   save(); render();
   if(!silent) toast('Checklist azzerata');
 }
 
 document.getElementById('newDive').onclick=()=>{
-  if(!confirm('Nuova immersione: azzero Closed check, Pre-jump e Tra immersioni?')) return;
+  if(!confirm('Nuova immersione per '+userOf(state.user).name+': azzero Closed check, Pre-jump e Tra immersioni?')) return;
   ['closed','prejump','between'].forEach(id=>resetList(id,true));
   toast('Pronto per una nuova immersione 🤿');
 };
 document.getElementById('resetAll').onclick=()=>{
-  if(!confirm('Azzero TUTTE le checklist e i valori inseriti? (il contatore scrubber resta)')) return;
-  state.checks={}; state.values={}; state.dates={};
+  if(!confirm('Azzero TUTTE le checklist e i valori di '+userOf(state.user).name+'? (scrubber e log restano)')) return;
+  const u=cur();
+  u.checks={}; u.values={}; u.dates={}; u.logged={};
   save(); render(); toast('Tutto azzerato');
 };
 
 /* mode toggle */
 const $mt=document.getElementById('modeToggle');
 function renderMode(){
-  $mt.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.mode===state.mode));
+  $mt.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.mode===cur().mode));
 }
 $mt.querySelectorAll('button').forEach(b=>{
-  b.onclick=()=>{ state.mode=b.dataset.mode; save(); renderMode(); render(); };
+  b.onclick=()=>{ cur().mode=b.dataset.mode; save(); render(); };
 });
 
 /* scrubber */
 const SCRUB_MAX=160;
 const $sm=document.getElementById('scrubMin');
-$sm.value=state.scrub||'';
 function renderScrub(){
-  const used=parseInt(state.scrub||'0',10)||0;
+  if(document.activeElement!==$sm) $sm.value=cur().scrub||'';
+  const used=parseInt(cur().scrub||'0',10)||0;
   const rem=SCRUB_MAX-used;
   const bar=document.getElementById('scrubBar');
   bar.style.width=Math.min(100, 100*used/SCRUB_MAX)+'%';
@@ -644,7 +1028,7 @@ function renderScrub(){
   document.getElementById('scrubRem').textContent = rem>=0? `${rem}′ su ${SCRUB_MAX}′` : `oltre limite!`;
   document.getElementById('scrubRem').style.color = rem<20? 'var(--red)' : rem<60? 'var(--yellow)' : 'var(--txt)';
 }
-$sm.oninput=()=>{ state.scrub=$sm.value; save(); renderScrub(); };
+$sm.oninput=()=>{ cur().scrub=$sm.value; save(); renderScrub(); };
 
 /* timer */
 let activeTimer=null;
@@ -684,13 +1068,14 @@ let toastT=null;
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
-  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'), 2200);
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'), 2600);
 }
 
-function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-/* init */
-renderMode(); renderScrub(); render();
+/* init: all’apertura si sceglie sempre chi si immerge */
+render();
+showUserScreen();
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
