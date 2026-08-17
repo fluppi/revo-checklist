@@ -130,6 +130,7 @@
   }
   .calcbox .cres{margin-top:8px; font-size:14px; display:none;}
   .calcbox .cres b{color:var(--green); font-size:16px;}
+  .calcbox .cres .chm{color:var(--dim); font-size:13px;}
   .calcbox .cwarn{margin-top:8px; font-size:12px; color:var(--yellow);}
   .timerbtn{
     margin-top:8px; background:var(--card2); border:1px solid var(--green-dark); color:var(--green);
@@ -684,8 +685,17 @@ function renderList(cl){
   return frag;
 }
 
-/* calcolo calce residua: T = minuti residui × (20 / profondità prevista), riferimento 20 m */
+/* calcolo calce residua: T = minuti residui × (20 / profondità prevista), riferimento 20 m.
+   La calce residua si inserisce in ore + minuti e viene convertita in minuti per la formula. */
 function buildScrubCalc(){
+  /* migrazione dal vecchio campo unico in minuti */
+  const old=parseFloat(String(cur().values['calc|min']||'').replace(',','.'));
+  if(isFinite(old) && old>0 && cur().values['calc|h']==null && cur().values['calc|m']==null){
+    cur().values['calc|h']=String(Math.floor(old/60));
+    cur().values['calc|m']=String(Math.round(old%60));
+    delete cur().values['calc|min']; save();
+  }
+
   const box=document.createElement('div'); box.className='calcbox';
   box.onclick=e=>e.stopPropagation();
   const tit=document.createElement('div'); tit.className='ctit'; tit.textContent='🧮 Calcolo calce (riferimento 20 m)';
@@ -702,7 +712,8 @@ function buildScrubCalc(){
     row.appendChild(lab);
     return inp;
   };
-  const iMin=mkIn('calc|min','—','calce residua (min)');
+  const iH=mkIn('calc|h','0','ore');
+  const iM=mkIn('calc|m','0','min');
   const iDep=mkIn('calc|depth','—','profondità (m)');
   box.appendChild(row);
   const res=document.createElement('div'); res.className='cres';
@@ -710,12 +721,15 @@ function buildScrubCalc(){
   const warn=document.createElement('div'); warn.className='cwarn';
   warn.textContent='⚠ Temperature: se inferiori ai 15 °C rispetto all’immersione precedente, tienilo in considerazione con il calcolo RMS.';
   box.appendChild(warn);
+  function fmtHM(t){ return Math.floor(t/60)+'h '+String(t%60).padStart(2,'0')+'m'; }
   function upd(){
-    const m=parseFloat(String(iMin.value).replace(',','.'));
+    const h=parseFloat(String(iH.value).replace(',','.'))||0;
+    const m=parseFloat(String(iM.value).replace(',','.'))||0;
+    const tot=h*60+m;
     const d=parseFloat(String(iDep.value).replace(',','.'));
-    if(isFinite(m) && m>0 && isFinite(d) && d>0){
-      const t=Math.floor(m*(20/d));
-      res.innerHTML='→ durata a '+escapeHtml(iDep.value)+' m: <b>≈ '+t+' min</b>';
+    if(tot>0 && isFinite(d) && d>0){
+      const t=Math.floor(tot*(20/d));
+      res.innerHTML='calce residua '+Math.round(tot)+' min → durata a '+escapeHtml(iDep.value)+' m: <b>≈ '+t+' min</b>'+(t>=60?' <span class="chm">('+fmtHM(t)+')</span>':'');
       res.style.display='block';
     } else res.style.display='none';
   }
