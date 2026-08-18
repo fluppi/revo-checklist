@@ -33,18 +33,10 @@
   h1{font-size:20px; margin:0; letter-spacing:.5px; display:flex; align-items:center; gap:8px;}
   h1 .o2{color:var(--green);}
   .userchip{
-    display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:20px;
+    margin-left:auto; display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:20px;
     background:var(--card); color:var(--txt); padding:5px 12px; font-size:13px; font-weight:600; cursor:pointer;
   }
   .userchip .dot{width:9px; height:9px; border-radius:50%;}
-  .mode-toggle{
-    margin-left:auto; display:flex; border:1px solid var(--line); border-radius:20px; overflow:hidden;
-    font-size:12px;
-  }
-  .mode-toggle button{
-    background:none; border:none; color:var(--dim); padding:6px 12px; font-size:12px; cursor:pointer;
-  }
-  .mode-toggle button.on{background:var(--green-dark); color:#fff; font-weight:600;}
   /* scrubber widget */
   .scrubber{
     margin-top:10px; background:var(--card); border:1px solid var(--line); border-radius:10px;
@@ -70,6 +62,13 @@
   }
   nav button.on{background:var(--green-dark); border-color:var(--green-dark); color:#fff; font-weight:600;}
   nav button .cnt{font-size:11px; opacity:.85;}
+  nav button.sec{opacity:.62;}
+  nav .navdiv{flex:0 0 1px; width:1px; align-self:stretch; background:var(--dim); opacity:.5; margin:0 5px;}
+  nav button .stepno{
+    display:inline-block; background:var(--green-dark); color:#fff; border-radius:4px;
+    font-size:10px; font-weight:800; padding:0 4px; margin-right:5px; vertical-align:1px;
+  }
+  nav button.on .stepno{background:rgba(255,255,255,.25);}
   main{padding:12px 14px 90px 14px; max-width:640px; margin:0 auto;}
   .listhead{display:flex; align-items:center; gap:10px; margin:6px 0 12px 0; flex-wrap:wrap;}
   .listhead h2{font-size:17px; margin:0; flex:1;}
@@ -201,6 +200,8 @@
     font-size:20px; font-weight:800; color:#fff; flex:0 0 44px;
   }
   .userbtn .last{margin-left:auto; font-size:11px; font-weight:600; color:var(--dim);}
+  .userbtn.add{border-style:dashed; color:var(--dim); font-weight:600; font-size:16px;}
+  .userbtn.add .avatar{background:var(--card2); color:var(--dim); border:1px dashed var(--dim);}
   .userscreen .note{font-size:12px; color:var(--dim); max-width:320px;}
   /* ===== home ===== */
   .hello{font-size:21px; font-weight:700; margin:8px 0 14px 0; display:flex; align-items:center; gap:10px;}
@@ -291,11 +292,7 @@
 <header>
   <div class="topbar">
     <h1>rEvo <span class="o2">✓</span> Checklist</h1>
-    <button class="userchip" id="userChip" title="Cambia utente"><span class="dot"></span><span class="nm"></span> ⇄</button>
-    <div class="mode-toggle" id="modeToggle">
-      <button data-mode="mccr">mCCR</button>
-      <button data-mode="hccr">hCCR · Petrel 3 + NERD 2</button>
-    </div>
+    <button class="userchip" id="userChip" title="Cambia subacqueo"><span class="dot"></span><span class="nm"></span> ⇄</button>
   </div>
   <div class="scrubber">
     <label for="scrubMin">Scrubber</label>
@@ -318,7 +315,7 @@
 <div class="userscreen hidden" id="userScreen">
   <div class="biglogo">rEvo <span style="color:var(--green)">✓</span></div>
   <h2>Chi si immerge?</h2>
-  <p>Seleziona l’utente: checklist e valori restano separati, il log è condiviso.</p>
+  <p>Seleziona il subacqueo: checklist e valori restano separati, il log è condiviso.</p>
   <div id="userBtns" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:10px;"></div>
   <div class="note" id="userNote"></div>
 </div>
@@ -332,7 +329,9 @@ const USERS = [
   {id:'francois', name:'François', color:'var(--blue)'},
   {id:'orietta',  name:'Orietta',  color:'var(--pink)'},
 ];
-function userOf(id){ return USERS.find(u=>u.id===id); }
+const USER_COLORS=['#ffd43b','#69db7c','#b197fc','#ffa94d','#63e6be','#74c0fc','#e599f7','#ff8787'];
+function allUsers(){ return USERS.concat(state.customUsers||[]); }
+function userOf(id){ return allUsers().find(u=>u.id===id); }
 
 /* ================= DATI =================
    Montaggio + Closed check: checklist italiana di Aldo
@@ -521,8 +520,8 @@ let othersOpen = false;
 const LS_KEY = 'revoChecklist.v2';
 const LS_KEY_V1 = 'revoChecklist.v1';
 
-function blankUser(){ return {mode:'hccr', checks:{}, values:{}, dates:{}, scrub:'', logged:{}}; }
-let state = { user:null, users:{francois:blankUser(), orietta:blankUser()}, log:[] };
+function blankUser(){ return {checks:{}, values:{}, dates:{}, scrub:'', logged:{}}; }
+let state = { user:null, users:{francois:blankUser(), orietta:blankUser()}, customUsers:[], log:[] };
 
 try{
   const raw = localStorage.getItem(LS_KEY);
@@ -531,7 +530,8 @@ try{
     if(s && typeof s==='object'){
       state.user = s.user || null;
       state.log = Array.isArray(s.log) ? s.log : [];
-      USERS.forEach(u=>{
+      state.customUsers = Array.isArray(s.customUsers) ? s.customUsers : [];
+      USERS.concat(state.customUsers).forEach(u=>{
         state.users[u.id] = Object.assign(blankUser(), (s.users && s.users[u.id]) || {});
       });
     }
@@ -541,7 +541,7 @@ try{
     if(v1){
       const old = JSON.parse(v1);
       state.users.francois = Object.assign(blankUser(), {
-        mode:old.mode||'hccr', checks:old.checks||{}, values:old.values||{},
+        checks:old.checks||{}, values:old.values||{},
         dates:old.dates||{}, scrub:old.scrub||''
       });
     }
@@ -562,7 +562,7 @@ const $tabs = document.getElementById('tabs');
 const $main = document.getElementById('main');
 
 function visibleItems(cl){
-  return cl.items.filter(it => !it.group && (!it.hccr || cur().mode==='hccr'));
+  return cl.items.filter(it => !it.group);
 }
 function counts(cl){
   if(cl.info || cl.custom) return null;
@@ -572,12 +572,24 @@ function counts(cl){
 }
 function keyOf(cl,it){ return cl.id+'|'+it.t; }
 
+/* ordine tab: percorso principale, log, poi le secondarie oltre il divisore */
+const TAB_ORDER=['home','build','closed','prejump','log','water','between','endday','maint','info'];
+const TAB_SEC=new Set(['water','between','endday','maint','info']);
+const TAB_STEP={build:'1', closed:'2', prejump:'✓'};
+
 function renderTabs(){
   $tabs.innerHTML='';
-  CHECKLISTS.forEach(cl=>{
+  TAB_ORDER.forEach((id,ix)=>{
+    const cl=CHECKLISTS.find(c=>c.id===id);
+    if(!cl) return;
+    if(TAB_SEC.has(id) && !TAB_SEC.has(TAB_ORDER[ix-1])){
+      const dv=document.createElement('span'); dv.className='navdiv';
+      $tabs.appendChild(dv);
+    }
     const b=document.createElement('button');
     const c=counts(cl);
-    b.innerHTML = cl.tab + (c? ` <span class="cnt">${c.done}/${c.tot}</span>`:'');
+    b.innerHTML = (TAB_STEP[id]? '<span class="stepno">'+TAB_STEP[id]+'</span>':'') + cl.tab + (c? ` <span class="cnt">${c.done}/${c.tot}</span>`:'');
+    if(TAB_SEC.has(id)) b.classList.add('sec');
     if(cl.id===currentTab) b.classList.add('on');
     b.onclick=()=>{ goTab(cl.id); };
     $tabs.appendChild(b);
@@ -622,8 +634,6 @@ function renderList(cl){
       const g=document.createElement('div'); g.className='group'; g.textContent=it.group;
       frag.appendChild(g); return;
     }
-    if(it.hccr && cur().mode!=='hccr') return;
-
     const key=keyOf(cl,it);
     const row=document.createElement('div');
     row.className='item'+(cur().checks[key]?' checked':'');
@@ -634,11 +644,10 @@ function renderList(cl){
     row.appendChild(box);
 
     const body=document.createElement('div'); body.className='body';
-    const hc = cur().mode==='hccr';
-    const txt = (hc && it.t2) ? it.t2 : it.t;
-    const sub = (hc && it.sub2) ? it.sub2 : it.sub;
+    const txt = it.t2 || it.t;
+    const sub = it.sub2 || it.sub;
     const t=document.createElement('div'); t.className='t';
-    t.innerHTML = (it.hccr?'<span class="badge">hCCR</span>':'') + escapeHtml(txt);
+    t.innerHTML = escapeHtml(txt);
     body.appendChild(t);
     if(sub){ const s=document.createElement('div'); s.className='sub'; s.textContent=sub; body.appendChild(s); }
 
@@ -771,7 +780,6 @@ function maybeLogCompletion(cl){
     tab:cl.tab,
     ts:new Date().toISOString(),
     tot:c.tot,
-    mode:cur().mode,
     scrub:cur().scrub||'',
     values:snapshotValues(cl),
   });
@@ -795,7 +803,7 @@ function renderLog(){
   frag.appendChild(head);
 
   const filt=document.createElement('div'); filt.className='filters';
-  const opts=[{id:'all',name:'Tutti'}].concat(USERS);
+  const opts=[{id:'all',name:'Tutti'}].concat(allUsers());
   opts.forEach(o=>{
     const b=document.createElement('button');
     if(o.color) b.innerHTML='<span class="dot" style="background:'+o.color+'"></span>'+o.name;
@@ -849,11 +857,11 @@ function renderLog(){
 
 function exportCsv(){
   if(!state.log.length){ toast('Il log è vuoto'); return; }
-  const rows=[['Data','Utente','Checklist','Voci','Modalità','Scrubber (min)','Valori']];
+  const rows=[['Data','Utente','Checklist','Voci','Scrubber (min)','Valori']];
   state.log.slice().reverse().forEach(en=>{
     const u=userOf(en.user)||{name:en.user};
     const vals=Object.entries(en.values||{}).map(([k,v])=>k+'='+v).join(' | ');
-    rows.push([fmtTs(en.ts), u.name, en.title, en.tot+'/'+en.tot, en.mode||'', en.scrub||'', vals]);
+    rows.push([fmtTs(en.ts), u.name, en.title, en.tot+'/'+en.tot, en.scrub||'', vals]);
   });
   const csv='﻿'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n');
   const a=document.createElement('a');
@@ -1021,7 +1029,7 @@ function renderInfo(){
       <li><a href="http://www.revo-rebreathers.com/wp-content/uploads/2016/02/rEvo_checklist_v04_031013.pdf">Checklist ufficiale rEvo v0.4 (EN)</a></li>
       <li><a href="https://www.revo-rebreathers.com/revo-downloads/">rEvo Rebreathers — Downloads</a> (controlla sempre l’ultima versione)</li>
     </ul>
-    I dati dell’app (checklist, valori e log di François e Orietta) restano solo su questo dispositivo (localStorage).
+    I dati dell’app (checklist, valori e log di tutti i subacquei) restano solo su questo dispositivo (localStorage).
   </div>`;
   frag.appendChild(wrap);
   return frag;
@@ -1031,7 +1039,7 @@ function renderInfo(){
 
 function render(){
   renderUserChip();
-  renderMode(); renderScrub();
+  renderScrub();
   renderTabs();
   $main.innerHTML='';
   if(!userOf(state.user)) return; /* nessun utente selezionato: resta la schermata di scelta */
@@ -1047,21 +1055,43 @@ function render(){
 const $userScreen=document.getElementById('userScreen');
 const $userBtns=document.getElementById('userBtns');
 
+function selectUser(id){
+  state.user=id; save();
+  $userScreen.classList.add('hidden');
+  currentTab='home'; location.hash='home';
+  render(); window.scrollTo(0,0);
+}
+
 function showUserScreen(){
   $userBtns.innerHTML='';
-  USERS.forEach(u=>{
+  allUsers().forEach(u=>{
     const b=document.createElement('button'); b.className='userbtn';
-    b.innerHTML='<span class="avatar" style="background:'+u.color+'">'+u.name[0]+'</span>'+escapeHtml(u.name)+
+    b.innerHTML='<span class="avatar" style="background:'+u.color+'">'+escapeHtml(u.name[0])+'</span>'+escapeHtml(u.name)+
       (state.user===u.id?'<span class="last">ultimo utente</span>':'');
-    b.onclick=()=>{
-      state.user=u.id; save();
-      $userScreen.classList.add('hidden');
-      currentTab='home'; location.hash='home';
-      render(); window.scrollTo(0,0);
-    };
+    b.onclick=()=>selectUser(u.id);
     $userBtns.appendChild(b);
   });
+  const add=document.createElement('button'); add.className='userbtn add';
+  add.innerHTML='<span class="avatar">＋</span>Aggiungi subacqueo';
+  add.onclick=addDiver;
+  $userBtns.appendChild(add);
   $userScreen.classList.remove('hidden');
+}
+
+function addDiver(){
+  const name=(prompt('Nome del nuovo subacqueo:')||'').trim().slice(0,20);
+  if(!name) return;
+  if(allUsers().some(u=>u.name.toLowerCase()===name.toLowerCase())){
+    alert('Esiste già un subacqueo con questo nome.');
+    return;
+  }
+  const id='u'+Date.now().toString(36);
+  const color=USER_COLORS[state.customUsers.length % USER_COLORS.length];
+  state.customUsers.push({id, name, color});
+  state.users[id]=blankUser();
+  save();
+  selectUser(id);
+  toast('Nuovo subacqueo: '+name+' 🤿');
 }
 
 function renderUserChip(){
@@ -1100,15 +1130,6 @@ document.getElementById('resetAll').onclick=()=>{
   u.checks={}; u.values={}; u.dates={}; u.logged={};
   save(); render(); toast('Tutto azzerato');
 };
-
-/* mode toggle */
-const $mt=document.getElementById('modeToggle');
-function renderMode(){
-  $mt.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.mode===cur().mode));
-}
-$mt.querySelectorAll('button').forEach(b=>{
-  b.onclick=()=>{ cur().mode=b.dataset.mode; save(); render(); };
-});
 
 /* scrubber */
 const SCRUB_MAX=160;
