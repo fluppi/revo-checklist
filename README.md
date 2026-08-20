@@ -26,9 +26,11 @@ Il log è condiviso, filtrabile per utente ed esportabile in CSV.
 - 📒 **Log** — storico delle checklist completate, per utente, con export CSV
 - ℹ️ **Info** — limiti d'uso, SEMPRE/MAI, procedura Top Marker, drill, fonti
 
-Funzioni: toggle mCCR / hCCR-rMS, contatore minuti scrubber (limite 160′), salvataggio
-automatico in locale (localStorage), funziona **offline** (PWA installabile sul telefono:
-"Aggiungi a schermata Home").
+Funzioni: calcolatore calce RMS con le regole di
+[rEvoCalc](https://framagit.org/erics/revocalc/) (RCT/profondità/temperatura dell'ultima
+immersione, minimo 20 m, cycle se la prossima è oltre 4 °C più fredda), contatore minuti
+scrubber (limite 160′), salvataggio automatico in locale (localStorage), funziona **offline**
+(PWA installabile sul telefono: "Aggiungi a schermata Home").
 
 ## ⚠ Avvertenza
 

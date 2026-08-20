@@ -127,10 +127,16 @@
     width:64px; background:var(--bg); border:1px solid var(--line); border-radius:7px;
     color:var(--txt); font-size:15px; padding:6px; text-align:center;
   }
+  .calcbox .cgroup{font-size:11.5px; font-weight:700; color:var(--dim); text-transform:uppercase; letter-spacing:.6px; margin:8px 0 5px 0;}
+  .calcbox .cgroup:first-of-type{margin-top:0;}
   .calcbox .cres{margin-top:8px; font-size:14px; display:none;}
   .calcbox .cres b{color:var(--green); font-size:16px;}
   .calcbox .cres .chm{color:var(--dim); font-size:13px;}
   .calcbox .cwarn{margin-top:8px; font-size:12px; color:var(--yellow);}
+  .calcbox .cmsgs{margin-top:8px; font-size:12.5px; color:var(--dim); display:none;}
+  .calcbox .cmsgs div{margin-bottom:3px;}
+  .calcbox .cmsgs .ccycle{color:var(--red); font-weight:700; font-size:13.5px;}
+  .calcbox .cnote{margin-top:6px; font-size:11.5px; color:var(--dim); display:none;}
   .timerbtn{
     margin-top:8px; background:var(--card2); border:1px solid var(--green-dark); color:var(--green);
     border-radius:8px; padding:7px 14px; font-size:14px; font-weight:600; cursor:pointer;
@@ -694,8 +700,11 @@ function renderList(cl){
   return frag;
 }
 
-/* calcolo calce residua: T = minuti residui × (20 / profondità prevista), riferimento 20 m.
-   La calce residua si inserisce in ore + minuti e viene convertita in minuti per la formula. */
+/* Calcolo calce residua — regole rMS come rEvoCalc (fr.videosub.revocalcrms, open source):
+   1. pianificata oltre 4 °C più fredda della precedente → si fa il cycle, niente calcolo
+   2. profondità dell’ultima immersione < 20 m → si considera 20 m
+   3. pianificata ≤ profondità ultima → tempo disponibile = RCT registrato
+   4. pianificata più profonda → T = RCT × (prof. ultima ÷ prof. pianificata)  */
 function buildScrubCalc(){
   /* migrazione dal vecchio campo unico in minuti */
   const old=parseFloat(String(cur().values['calc|min']||'').replace(',','.'));
@@ -707,10 +716,11 @@ function buildScrubCalc(){
 
   const box=document.createElement('div'); box.className='calcbox';
   box.onclick=e=>e.stopPropagation();
-  const tit=document.createElement('div'); tit.className='ctit'; tit.textContent='🧮 Calcolo calce (riferimento 20 m)';
+  const tit=document.createElement('div'); tit.className='ctit'; tit.textContent='🧮 Calcolo calce RMS (regole rEvoCalc)';
   box.appendChild(tit);
-  const row=document.createElement('div'); row.className='crow';
-  const mkIn=(key,ph,lbl)=>{
+
+  const num=v=>parseFloat(String(v).replace(',','.'));
+  const mkIn=(row,key,ph,lbl)=>{
     const lab=document.createElement('label'); lab.className='f';
     const inp=document.createElement('input');
     inp.type='text'; inp.inputMode='decimal'; inp.placeholder=ph;
@@ -721,26 +731,65 @@ function buildScrubCalc(){
     row.appendChild(lab);
     return inp;
   };
-  const iH=mkIn('calc|h','0','ore');
-  const iM=mkIn('calc|m','0','min');
-  const iDep=mkIn('calc|depth','—','profondità (m)');
-  box.appendChild(row);
+
+  const g1=document.createElement('div'); g1.className='cgroup'; g1.textContent='Ultima immersione — dati dallo Shearwater';
+  box.appendChild(g1);
+  const row1=document.createElement('div'); row1.className='crow';
+  const iH =mkIn(row1,'calc|h','0','ore');
+  const iM =mkIn(row1,'calc|m','0','min RCT');
+  const iLD=mkIn(row1,'calc|lastdepth','20','prof. (m)');
+  const iLT=mkIn(row1,'calc|lasttemp','—','°C');
+  box.appendChild(row1);
+
+  const g2=document.createElement('div'); g2.className='cgroup'; g2.textContent='Immersione pianificata';
+  box.appendChild(g2);
+  const row2=document.createElement('div'); row2.className='crow';
+  const iPD=mkIn(row2,'calc|depth','—','prof. (m)');
+  const iPT=mkIn(row2,'calc|plantemp','—','°C');
+  box.appendChild(row2);
+
+  const msgs=document.createElement('div'); msgs.className='cmsgs';
+  box.appendChild(msgs);
   const res=document.createElement('div'); res.className='cres';
   box.appendChild(res);
   const warn=document.createElement('div'); warn.className='cwarn';
-  warn.textContent='⚠ Temperature: se inferiori ai 15 °C rispetto all’immersione precedente, tienilo in considerazione con il calcolo RMS.';
+  warn.textContent='⚠ Temperature: inserisci quella dell’ultima immersione e quella prevista — se la prossima è oltre 4 °C più fredda, si fa il cycle (regola rMS).';
   box.appendChild(warn);
+  const note=document.createElement('div'); note.className='cnote';
+  note.textContent='Ricontrolla i dati; in caso di dubbio chiedi al tuo istruttore.';
+  box.appendChild(note);
+
   function fmtHM(t){ return Math.floor(t/60)+'h '+String(t%60).padStart(2,'0')+'m'; }
   function upd(){
-    const h=parseFloat(String(iH.value).replace(',','.'))||0;
-    const m=parseFloat(String(iM.value).replace(',','.'))||0;
-    const tot=h*60+m;
-    const d=parseFloat(String(iDep.value).replace(',','.'));
-    if(tot>0 && isFinite(d) && d>0){
-      const t=Math.floor(tot*(20/d));
-      res.innerHTML='calce residua '+Math.round(tot)+' min → durata a '+escapeHtml(iDep.value)+' m: <b>≈ '+t+' min</b>'+(t>=60?' <span class="chm">('+fmtHM(t)+')</span>':'');
-      res.style.display='block';
-    } else res.style.display='none';
+    msgs.innerHTML=''; msgs.style.display='none';
+    res.style.display='none'; note.style.display='none';
+    const rct=(num(iH.value)||0)*60+(num(iM.value)||0);
+    const ld=num(iLD.value), pd=num(iPD.value), lt=num(iLT.value), pt=num(iPT.value);
+    const tempsGiven=isFinite(lt) && isFinite(pt);
+    warn.style.display = tempsGiven? 'none':'block';
+    if(!(rct>0) || !(pd>0)) return;
+    note.style.display='block';
+    const addMsg=(txt,cls)=>{
+      const li=document.createElement('div'); li.className=cls||''; li.textContent='• '+txt;
+      msgs.appendChild(li); msgs.style.display='block';
+    };
+    if(tempsGiven && (lt-pt)>4){
+      addMsg('Immersione pianificata molto più fredda (oltre 4 °C in meno della precedente): SI FA IL CYCLE! Butta il sorb vecchio e fai un nuovo ciclo.','ccycle');
+      return;
+    }
+    let d = (isFinite(ld) && ld>0)? ld : 20;
+    if(!(isFinite(ld) && ld>0)) addMsg('Profondità ultima immersione non indicata: uso 20 m.');
+    else if(d<20){ d=20; addMsg('Ultima immersione a 20 m o meno: uso 20 m come profondità.'); }
+    let t;
+    if(pd<=d){
+      t=Math.floor(rct);
+      addMsg('Profondità pianificata ≤ ultima immersione: tempo disponibile = RCT registrato.');
+    }else{
+      t=Math.floor(rct*(d/pd));
+      addMsg('T = '+Math.round(rct)+'′ × ('+d+' ÷ '+Math.round(pd)+')');
+    }
+    res.innerHTML='→ tempo per l’immersione: <b>≈ '+t+' min</b>'+(t>=60?' <span class="chm">('+fmtHM(t)+')</span>':'');
+    res.style.display='block';
   }
   upd();
   return box;
